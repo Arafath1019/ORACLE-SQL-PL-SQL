@@ -97,3 +97,29 @@ $ ALTER TABLE Employees DROP COLUMN Salary;
 $ ALTER TABLE Employees SET UNUSED COLUMN Col1;
 $ ALTER TABLE Employees DROP UNUSED columns;
 ```
+
+### Drop Table
+```
+$ DROP TABLE Employees;
+```
+
+### Truncate Table
+```
+$ TRUNCATE TABLE Employees;
+```
+
+### Constraints
+* Is a rule to which data must be conform
+* Constraint names are optional
+* Can be added at Column level or Table Level
+* Can be enabled/disabled/dropped
+* Types of Constraints: NOT NULL, UNIQUE, PRIMARY KEY, CHECK, FOREIGN KEY
+
+### NOT NULL Constraint
+```
+$ CREATE TABLE Sample1(
+    Col1 number constraint Sample1_Col1_nn NOT NULL,
+    Col2 number NOL NULL
+);
+$ ALTER TABLE Employees modify FirstName varchar2(20) constraint Employee_FirstName_NN NOT NULL;
+```
