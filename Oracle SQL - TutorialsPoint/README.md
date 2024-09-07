@@ -228,3 +228,18 @@ ALTER TABLE customers DROP CONSTRAINT unique_email;
 * Use COMMIT command to save the changes
 * Use ROLLBACK command to undo the changes
 * Statements: Insert, Update, Delete, Merge
+
+### Insert Statement
+```
+INSERT INTO Customers(customer_id, first_name, last_name, age, country) VALUES(1, "Yeasin", "Arafath", 25, "BAN");
+```
+
+```
+INSERT INTO Customers VALUES(1, "Yeasin", "Arafath", 25, "BAN");
+```
+
+```
+INSERT INTO Customers VALUES(&customer_id, "&first_name", "&last_name", &age, "&country");
+
+COMMIT; -> TO commit the changes
+```
