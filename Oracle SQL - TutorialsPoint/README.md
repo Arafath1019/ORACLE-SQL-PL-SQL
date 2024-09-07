@@ -173,3 +173,31 @@ CREATE TABLE Sample1(
 ```
 ALTER TABLE Employees ADD CONSTRAINT Emp_gender_check CHECK(gender in ('M', 'F'));
 ```
+
+### FOREIGN KEY CONSTRAINT
+<img src="../images/2.png" height="auto" width="auto" />
+
+```
+CREATE TABLE Departments(
+    DEPTID NUMBER CONSTRAINT Departments_constraint_nn NOT NULL,
+    DEPTNAME VARCHAR2(20)
+);
+
+CREATE TABLE Employees(
+    EmpId NUMBER(3) CONSTRAINT Employees_empid_nn NOT NUL,
+    FirstName VARCHAR2(20) CONSTRAINT Employees_firstname_nn NOT NULL,
+    DeptId NUMBER,
+    CONSTRAINT Employees_deptid_rel FOREIGN KEY(DeptId) REFERENCES Departments(DeptId) ON DELETE SET NULL
+);
+
+CREATE TABLE Employees(
+    EmpId NUMBER(3) CONSTRAINT Employees_empid_nn NOT NUL,
+    FirstName VARCHAR2(20) CONSTRAINT Employees_firstname_nn NOT NULL,
+    DeptId NUMBER,
+    CONSTRAINT Employees_deptid_rel FOREIGN KEY(DeptId) REFERENCES Departments(DeptId) ON DELETE CASECADE
+);
+```
+
+```
+ALTER TABLE Employees ADD CONSTRAINT Emp_dept_Rel FOREIGN KEY(DeptId) REFERENCES Departments(DeptId) ON DELETE SET NULL;
+```
