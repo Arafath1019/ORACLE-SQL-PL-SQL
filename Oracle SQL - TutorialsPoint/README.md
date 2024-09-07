@@ -219,3 +219,12 @@ ALTER TABLE customers ENABLE CONSTRAINT unique_email;
 ```
 ALTER TABLE customers DROP CONSTRAINT unique_email;
 ```
+
+### Data Manipulation Language
+* Add new rows to a table
+* Modify existing rows in a table
+* Remove existing rows from a table
+* Multiple DML statements performing a logical task is called transaction
+* Use COMMIT command to save the changes
+* Use ROLLBACK command to undo the changes
+* Statements: Insert, Update, Delete, Merge
