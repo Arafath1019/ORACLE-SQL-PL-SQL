@@ -243,3 +243,15 @@ INSERT INTO Customers VALUES(&customer_id, "&first_name", "&last_name", &age, "&
 
 COMMIT; -> TO commit the changes
 ```
+
+### Update Statement
+```
+UPDATE Employees SET DeptId = 30 WHERE EmpId = 101;
+
+UPDATE Employees SET MobileNo = '123456789', LastName = 'Dubey', DateOfJoining = '20-Dec-16' WHERE EmpId = 102;
+```
+
+### DELETE STATEMENT
+```
+DELETE FROM Employees WHERE EmpId = 101;
+```
