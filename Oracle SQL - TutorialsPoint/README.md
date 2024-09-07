@@ -139,3 +139,26 @@ CREATE TABLE Sample2(
 ```
 ALTER TABLE Employees ADD CONSTRAINT Employee_Email_un UNIQUE(EmailID);
 ```
+
+### PRIMARY KEY Constraint
+* Column Level Primary Key Constraint
+```
+CREATE TABLE Sample1(
+    Col1 NUMBER CONSTRAINT Sample1_pk PRIMARY KEY,
+    Col2 NUMBER,
+    Col3 NUMBER
+);
+```
+* TABLE Level Primary Key Constraint
+```
+CREATE TABLE Sample1(
+    Col1 NUMBER,
+    Col2 NUMBER,
+    Col3 NUMBER,
+    CONSTRAINT Sample1_pk PRIMARY KEY(Col1)
+);
+```
+* ALTER TABLE
+```
+ALTER TABLE Sample1 ADD CONSTRAINT Sample1_pk PRIMARY KEY(Col1);
+```
