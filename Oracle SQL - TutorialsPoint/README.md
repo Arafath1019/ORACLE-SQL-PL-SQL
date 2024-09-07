@@ -162,3 +162,14 @@ CREATE TABLE Sample1(
 ```
 ALTER TABLE Sample1 ADD CONSTRAINT Sample1_pk PRIMARY KEY(Col1);
 ```
+
+### CHECK CONSTRAINT
+The CHECK constraint is used to limit the value range that can be placed in a column.
+```
+CREATE TABLE Sample1(
+    Col1 NUMBER(10) CONSTRAINT Sample1_col1_check CHECK(Col1 >= 10000)
+);
+```
+```
+ALTER TABLE Employees ADD CONSTRAINT Emp_gender_check CHECK(gender in ('M', 'F'));
+```
