@@ -201,3 +201,21 @@ CREATE TABLE Employees(
 ```
 ALTER TABLE Employees ADD CONSTRAINT Emp_dept_Rel FOREIGN KEY(DeptId) REFERENCES Departments(DeptId) ON DELETE SET NULL;
 ```
+
+### Managing Constraints
+* Add a constraint
+```
+ALTER TABLE customers ADD CONSTRAINT unique_email UNIQUE(email);
+```
+* Disable a constraint
+```
+ALTER TABLE customers DISABLE CONSTRAINT unique_email;
+```
+* Enable a constraint
+```
+ALTER TABLE customers ENABLE CONSTRAINT unique_email;
+```
+* Drop a constraint
+```
+ALTER TABLE customers DROP CONSTRAINT unique_email;
+```
