@@ -123,3 +123,19 @@ $ CREATE TABLE Sample1(
 );
 $ ALTER TABLE Employees modify FirstName varchar2(20) constraint Employee_FirstName_NN NOT NULL;
 ```
+
+### UNIQUE Constraint
+<img src="../images/1.png" height="auto" width="auto" />
+
+```
+CREATE TABLE Sample2(
+    Col1 NUMBER CONSTRAINT Sample2_Col1_un UNIQUE,
+    Col2 NUMBER,
+    Col3 NUMBER,
+    CONSTRAINT Sample2_unique UNIQUE(Col2, Col3)
+);
+```
+
+```
+ALTER TABLE Employees ADD CONSTRAINT Employee_Email_un UNIQUE(EmailID);
+```
