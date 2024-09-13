@@ -255,3 +255,30 @@ UPDATE Employees SET MobileNo = '123456789', LastName = 'Dubey', DateOfJoining =
 ```
 DELETE FROM Employees WHERE EmpId = 101;
 ```
+
+### Merge Statement
+Merge statement in SQL is used to perform insert, update and delete operations on a target table 
+based on the results of JOIN with a source table. This allows users to synchronize two tables by performing operations on one table based on results from the second table.
+
+The merge statement compares data between a source table and a target table based on specified key fields. It performs appropriate actions like inserting new records, updating existing ones and deleting or flagging records on longer present in the source.
+
+For example:
+There are two tables, Employees Table and Copy of Employees table. Want to update data in copy employees table from employees table and if not present then insert the missing data into copy employees table.
+
+```
+MERGE INTO Copy_Employees c
+using Employees e 
+on (e.empid = c.empid) 
+when matched then 
+update set 
+c.firstname = e.firstname,
+c.lastname = e.lastname,
+c.mobileno = e.mobileno,
+c.deptid = e.deptid
+when not matched then INSERT VALUES(e.firstname, e.lastname, e.mobileno, e.deptid);
+```
+
+Update any field value
+```
+UPDATE Employees SET deptid = 30 where empid = 101;
+```
