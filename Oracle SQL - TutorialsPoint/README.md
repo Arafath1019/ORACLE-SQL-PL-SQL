@@ -282,3 +282,24 @@ Update any field value
 ```
 UPDATE Employees SET deptid = 30 where empid = 101;
 ```
+
+### Managing SQL Transactions
+* DDL(Data Definition Language) & DCL(Data Control Language) commands are auto committed.
+* DML commands need to be managed
+* Transaction begins with first DML command
+* Transaction ends when
+    - COMMIT or ROLLBACK is issued
+    - DDL or DCL command issued
+    - Command editor exits
+    - System crashes
+* SAVEPOINTS can be placed in the transaction as a marker for rollback
+
+```
+$ INSERT INTO Departments VALUES(50, "IT");
+$ COMMIT;
+$ DELETE FROM Departments;
+$ ROLLBACK;
+$ UPDATE Departments set DeptName = "CSE" WHERE DeptId = 30;
+$ SAVEPOINT updations;
+$ ROLLBACK to updations;
+```
