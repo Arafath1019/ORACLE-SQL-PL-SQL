@@ -318,3 +318,14 @@ $ SELECT Employee_Id, First_Name || ' ' || Last_Name, Salary * 2 FROM Employees;
 $ SELECT Employee_Id, First_Name || ' ' || Last_Name as Employee_Name, salary * 12 as Annual_Salary FROM Employees;
 $ SELECT DISTINCT Department_Id from Employees; -> Remove the duplicate data and show only unique data
 ```
+
+### Sorting Data
+* ORDER BY clause sorts the data
+* ORDER BY must be the last clause of the SELECT statement
+* Default is ascending order sort
+```
+$ SELECT First_Name from Employees ORDER BY First_Name;
+$ SELECT First_Name from Employees ORDER BY First_Name ASC;
+$ SELECT First_Name from Employees ORDER BY First_Name DESC;
+$ SELECT Employee_Id, First_Name, Last_Name, Salary FROM Employees ORDER BY Salary DESC, First_Name;
+```
