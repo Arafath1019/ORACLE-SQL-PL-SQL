@@ -303,3 +303,18 @@ $ UPDATE Departments set DeptName = "CSE" WHERE DeptId = 30;
 $ SAVEPOINT updations;
 $ ROLLBACK to updations;
 ```
+
+### SELECT statement
+* Is a DRL (Data Retrival Language)
+* SELECT clause specifies the columns to search
+* FROM clause specifies the data source
+* Column search can be modified using expressions.
+
+```
+$ SELECT * FROM Employees;
+$ SELECT Employee_Id, First_Name, Last_Name from Employees;
+$ SELECT Employee_Id, First_Name || ' ' || Last_Name, Salary FROM Employees;
+$ SELECT Employee_Id, First_Name || ' ' || Last_Name, Salary * 2 FROM Employees;
+$ SELECT Employee_Id, First_Name || ' ' || Last_Name as Employee_Name, salary * 12 as Annual_Salary FROM Employees;
+$ SELECT DISTINCT Department_Id from Employees; -> Remove the duplicate data and show only unique data
+```
