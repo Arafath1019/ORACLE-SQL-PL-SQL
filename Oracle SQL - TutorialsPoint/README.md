@@ -329,3 +329,29 @@ $ SELECT First_Name from Employees ORDER BY First_Name ASC;
 $ SELECT First_Name from Employees ORDER BY First_Name DESC;
 $ SELECT Employee_Id, First_Name, Last_Name, Salary FROM Employees ORDER BY Salary DESC, First_Name;
 ```
+
+### Filtering Data in SQL
+* WHERE clause is used to add conditions to filter
+* Various operators can be used to pass the conditions
+* Comparison Operators: = (equal to), != (Not equal to), > (greater than), < (less than), >= (greater than or equal to), <= (less than or equal to)
+```
+$ SELECT first_name FROM Employees WHERE Emp_id = 30;
+$ SELECT first_name FROM Employees WHERE Emp_id != 30;
+$ SELECT first_name FROM Employees WHERE salary >= 10000;
+```
+* Logical Operators: and, or, not operators
+```
+$ SELECT first_name FROM Employees WHERE salary > 10000 AND Dep_id = 20;
+$ SELECT first_name FROM Employees WHERE salary > 10000 or salary < 20000;
+```
+* Special Operators: IN, BETWEEN ... AND, LIKE, IS NULL
+```
+$ SELECT first_name FROM Employees WHERE Emp_id IN (101, 104, 106);
+$ SELECT first_name FROM Employee WHERE Emp_id NOT IN (102, 108, 111);
+$ SELECT first_name FROM Employees WHERE salary BETWEEN 10000 AND 20000;
+$ SELECT first_name FROM Employees WHERE first_name LIKE 'A%';
+$ SELECT first_name FROM Employees WHERE first_name LIKE '%a';
+$ SELECT first_name FROM Employees WHERE first_name LIKE 'A____';
+$ SELECT first_name FROM Employees WHERE dept_id IS NULL;
+$ SELECT first_name FROM Employees WHERE dept_id IS NOT NULL;
+```
