@@ -355,3 +355,16 @@ $ SELECT first_name FROM Employees WHERE first_name LIKE 'A____';
 $ SELECT first_name FROM Employees WHERE dept_id IS NULL;
 $ SELECT first_name FROM Employees WHERE dept_id IS NOT NULL;
 ```
+
+### Functions in SQL
+* Performs some specific task
+* Accepts the values through parameters
+* Returns the processed data
+* Types of functions: Single Row Function, Multi-row function
+* Single Row Function:
+    
+    - Character functions
+    - Number Functions
+    - Date Functions
+    - Conversion Functions
+    - General Functions
