@@ -368,3 +368,16 @@ $ SELECT first_name FROM Employees WHERE dept_id IS NOT NULL;
     - Date Functions
     - Conversion Functions
     - General Functions
+
+### Character Functions
+* Case Manipulation
+* Character Manipulation
+
+```
+$ SELECT Employee_Id, upper(first_name), lower(last_name), salary FROM Employees WHERE lower(last_name) = "king";
+$ SELECT initcap('anadi shArma') from dual;
+$ SELECT Employee_Id FROM Employees WHERE length(first_name) = 5;
+$ SELECT Employee_Id, concat(upper(first_name), lower(last_name)) FROM Employees;
+$ SELECT first_name, substr(phone_number, 0, 3) FROM Employees;
+$ SELECT first_name, rpad(substr(phone_number, 0, 3), 7, '*') FROM Employees;
+```
