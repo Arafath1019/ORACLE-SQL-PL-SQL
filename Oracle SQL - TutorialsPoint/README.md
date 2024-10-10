@@ -381,3 +381,26 @@ $ SELECT Employee_Id, concat(upper(first_name), lower(last_name)) FROM Employees
 $ SELECT first_name, substr(phone_number, 0, 3) FROM Employees;
 $ SELECT first_name, rpad(substr(phone_number, 0, 3), 7, '*') FROM Employees;
 ```
+
+
+### Number Functions
+Numeric functions are used to perform operations on numbers and return numbers. Following are the numeric functions defined in SQL:
+1. ABS(-243.5) -> it returns the absolute value of a number
+2. ACOS(0.25) -> It returns the cosine of a number, in radians
+3. ASIN(0.25) -> It returns the arc sine of a number, in radians
+4. ATAN(2.5) -> it returns the arc tangent of a number, in radians
+5. CEIL(25.75) / CEILING(25.75) -> It returns the smallest integer value that is greater than or equal to a number
+6. COS(30) -> It returns the cosine of a number
+7. COT(6) -> it returns the cotangent of a number
+8. DEGREES(1.5) -> It converts a radian value into degrees
+9. 10 DIV 5 -> It is used for integer division
+10. EXP(1) -> It returns e raised to the power of a number
+11. FLOOR(25.75) -> It returns the largest integer value that is less than or equal to a number.
+12. GREATEST(30, 2, 36,81,125) -> It returns the greatest value in a list of expressions
+13. LEAST(30, 2, 36, 81) -> it returns the smallest value in a list of expressions
+14. MOD(18, 4) -> It returns the remained of n divided by m
+15. PI() -> It returns the value of pi
+16. POWER(4,2)
+17. ROUND(5.33)
+18. SQRT(25)
+19. TRUNCATE(7.523545, 2)
