@@ -404,3 +404,17 @@ Numeric functions are used to perform operations on numbers and return numbers. 
 17. ROUND(5.33)
 18. SQRT(25)
 19. TRUNCATE(7.523545, 2)
+
+
+### SQL Date & Time Functions
+Sample of date format: '24-JAN-17'
+
+1. '24-JAN-17' + 5 -> returns 5 months later date
+2. '24-JAN-17' - 5 -> returns 5 months before date
+3. '24-JAN-17' + 14/24 -> returns 14hrs later date of the date
+4. to_date('31-DEC-16') - to_date('23-FEB-88') -> returns the difference between the dates in days
+5. months_between('31-DEC-16', '23-FEB-88') -> returns the difference between the dates in months
+6. round(months_between('31-DEC-16', '23-FEB-88')) -> returns the difference between the dates in months in rounded value
+7. next_day('26-JAN-17', 'Monday') -> returns the next monday date from the provided date.
+8. add_months('31-DEC-16', 15) -> returns the date after the provided months
+9. round(to_date('24-AUG-17'), 'year') -> returns '01-JAN-18'
