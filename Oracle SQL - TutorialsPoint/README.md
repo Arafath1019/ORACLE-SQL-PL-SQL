@@ -418,3 +418,18 @@ Sample of date format: '24-JAN-17'
 7. next_day('26-JAN-17', 'Monday') -> returns the next monday date from the provided date.
 8. add_months('31-DEC-16', 15) -> returns the date after the provided months
 9. round(to_date('24-AUG-17'), 'year') -> returns '01-JAN-18'
+
+
+### Conversions Functions
+* Varchar2 and Char implicitly converts to number or date
+* Type conversions can also be done explicitly
+
+1. to_char('25-JAN-17', 'dd-Month-yyyy') -> returns 25-January - 2017
+2. to_char('25-JAN-17', 'dd-Month-yyyy day') -> returns 25-January - 2017 wednesday
+3. to_char('25-JAN-17', 'day') -> returns wednesday
+4. SELECT Employee_Id, First_Name, Last_Name, Department_Id, Hire_date FROM Employees WHERE lower(to_char(hire_date, 'day')) = 'wednesday';
+5. to_char('25-JAN-17', 'ddsp mon yyyy') -> returns twenty-five jan 2017
+6. to_char('25-JAN-17', 'ddspth mon yyyy') -> returns twenty-fifth jan 2017
+7. to_char('25-JAN-17', 'HH : MI : SS') -> returns 03:36:54
+8. to_char('25-JAN-17', 'HH : MI : SS AM') -> returns 03:36:54 PM
+9. to_number(to_char('25-JAN-17', 'dd')) -> returns 25
