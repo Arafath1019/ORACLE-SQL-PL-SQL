@@ -433,3 +433,39 @@ Sample of date format: '24-JAN-17'
 7. to_char('25-JAN-17', 'HH : MI : SS') -> returns 03:36:54
 8. to_char('25-JAN-17', 'HH : MI : SS AM') -> returns 03:36:54 PM
 9. to_number(to_char('25-JAN-17', 'dd')) -> returns 25
+
+
+### General Functions
+SQL general functions are built-in functions provided by sql databases to perform a variety of operations on data. These functions are crucial for manipulating, analyzing and transforming data efficiently.
+These functions are categorized into several types based on their functionality.
+
+** Single Row Functions
+1. NVL function: It converts a null value to an actual value. Data types that can be used are date, character and number. The data type must match with each other i.e. expr1 and expr2 must be the same data type.
+Syntax: NVL(expr1, expr2)
+
+```
+SELECT salary, NVL(commission_pct, 0) (salary*12) + (salary*12*NVL(commission_pct, 0)) annual_salary FROM employees;
+```
+
+2. NVL2 function: It examines the first expression. If the first expression is not null, then the NVL2 function returns the second expression. If the first expression is null, then the third expression is returned.
+Syntax: NVL2(expr1. expr2, expr3)
+
+```
+SELECT last_name, salary, commission_pct, NVL2(commission_pct, 'SAL+COMM', 'SAL') income FROM employees;
+```
+
+3. COALESCE function
+It examines the first expression, if the first expression is not null, it returns that expression, otherwise it does a COALESCE of the remaining expression.
+The advantage of the COALESCE() function over the NVL() function is that the COALESCE function can take multiple alternate values. In simple words COALESCE() function returns the first non-null expression in the list.
+Syntax: COALESCE(expr1, expr2, ...., exprn);
+
+```
+SELECT last_name, COALESCE(commission_pct, salary, 10) comm FROM employees ORDER BY commission_pct;
+```
+
+4. NULLIF function
+It compares two expressions, if they are equal, the function returns null. If they are not equal, the function returns the first expression.
+
+```
+SELECT LENGTH(first_name) "expr1", LENGTH(last_name) "expr2", NULLIF(LENGTH(first_name), LENGTH(last_name)) result FROM employees;
+```
