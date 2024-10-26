@@ -616,3 +616,14 @@ FROM Employees
 FULL OUTER JOIN Departments
 USING(Department_Id);
 ```
+
+
+### Group Functions
+* Also called aggregate function
+* Perform calculation on a set of values and return a single value
+* COUNT, MAX, MIN, SUM, AVG, STDEV are some commonly used functions
+
+Examples:
+```
+SELECT SUM(salary), MIN(Salary), MAX(Salary), AVG(Salary), COUNT(Salary) FROM Employees;
+```
