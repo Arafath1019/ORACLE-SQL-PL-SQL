@@ -469,3 +469,150 @@ It compares two expressions, if they are equal, the function returns null. If th
 ```
 SELECT LENGTH(first_name) "expr1", LENGTH(last_name) "expr2", NULLIF(LENGTH(first_name), LENGTH(last_name)) result FROM employees;
 ```
+
+### SQL Joins
+* Is used to get the data from multiple tables
+* At least one common field must be there to create a join
+* Can be classified on the basis of data retrieval
+
+### Oracle Proprietary Joins
+* Equi join: Oracle Equi Join returns the matching column values of the associated tables. It uses a comparison operator in the WHERE clause to refer equality.
+Syntax:
+```
+SELECT * FROM table1, table2 WHERE table1.column_name = table2.column_name;
+```
+
+Equijoin also can be performed by using JOIN keyword followed by ON keyword and then specifying names of the columns along with their associated tables to check equality.\
+Syntax:
+```
+SELECT * FROM table1 JOIN table2 [ON(table1.column_name=table2.column_name)];
+```
+For Example: 
+```
+SELECT agents.agent_city, customer.last_name, customer.first_name FROM agents, customer WHERE agents.agent_id=customer.customer_id;
+```
+
+* Non-Equijoin: The non equijoin is such a join which match column values from different tables based on an inequality (instead of the equal sign like >, <, >=, <=) expression.
+For example: 
+```
+SELECT a.department_id, a.department_name, b.city FROM departments a, locations b WHERE b.location_id BETWEEN 1800 AND 2500 AND a.department_id < 30;
+```
+
+* Outer Joins: An outer join returns all rows that satisfy the join condition and also returns non-matching rows from one table and for those non-matching rows other table returns null. It means it returns matching and non-matching rows from one table and from another table returns matching rows and null for non-matching rows.
+Example:
+```
+SELECT Table1.Column_1, Table2.Column_n FROM Table1, Table2 WHERE Table1.Column_2 (+) = Table2.Column_2;
+SELECT Table1.Column_1, Table2.Column_n FROM Table1, Table2 WHERE Table1.Column_2 = Table2.Column_2 (+);
+```
+
+* Self Join: Oracle self join allows joining a table to itself. 
+Example: 
+```
+SELECT emp.employee_id, emp.name, emp.manager_id, mng._name 
+FROM employees emp, employees mng
+WHERE emp.manager_id = mng.employee_id;
+```
+
+
+### SQL Compliant Joins
+* Cross Join: The CROSS Join clause produces the cross-product of two tables. A cross join or Cartesian product is formed when every row from one table is joined to all rows in another. 
+Syntax:
+```
+SELECT table1.column, table2.column FROM table1 CROSS JOIN table2;
+```
+
+Example:
+```
+SELECT first_name, department_name
+FROM employees 
+CROSS JOIN departments;
+
+SELECT *
+FROM regions
+CROSS JOIN countries
+WHERE country_id='AU';
+```
+
+* Natural Join: It is based on all the columns in the two tables that have the same name and data types. It selects rows from the two tables that have equal values in all matched columns. 
+Example: 
+```
+SELECT postal_code, city, region_id, country_name
+FROM locations
+NATURAL JOIN countries;
+
+SELECT postal_code, city, region_id, country_name
+FROM locations
+NATURAL JOIN countries
+WHERE location_id>2000;
+```
+
+* Joins through using clause: Use the using clause to match only one column when more than one column matches.
+
+Example:
+```
+SELECT location_id, postal_code, country_name 
+FROM locations
+JOIN countries
+USING(country_id);
+
+SELECT l.location_id, l.street_address, l.postal_code, c.country_name
+FROM locations l
+JOIN countries c
+USING (country_id)
+WHERE c.country_id<> 'IT';
+```
+
+
+* Full Outer Join: A full outer join performs a join between two tables that returns the results of an INNER join as well as the results of a left and right outer join.
+
+Example: 
+```
+SELECT a.first_name, b.department_id, b.department_name
+FROM employees a 
+FULL OUTER JOIN departments b
+ON (a.department_id = b.department_id);
+```
+
+### Creating Joins with the ON Clause
+```
+SELECT e.employee_id, e.last_name, e.department_id, d.department_id, d.location_id
+FROM departments d
+JOIN employees e
+ON (e.employee_id = d.department_id);
+
+SELECT e.employee_id, e.last_name, e.department_id, d.department_id, d.location_id
+FROM departments d
+JOIN employees e
+ON (e.employee_id = d.department_id) AND e.manager_id = 108;
+
+SELECT First_Name, Department_Name, City
+FROM Employees 
+JOIN Departments
+ON Employees.Department_Id = Departments.Department_Id
+JOIN Locations
+ON Departments.Location_Id = Locations.Location_Id;
+```
+
+### Left Outer Join
+```
+SELECT First_Name, Department_Name 
+FROM Employees
+LEFT OUTER JOIN Departments
+USING(Department_Id);
+```
+
+### Right Outer Join
+```
+SELECT First_Name, Department_Name 
+FROM Employees
+RIGHT OUTER JOIN Departments
+USING(Department_Id);
+```
+
+### Full Outer Join
+```
+SELECT First_Name, Department_Name 
+FROM Employees
+FULL OUTER JOIN Departments
+USING(Department_Id);
+```
