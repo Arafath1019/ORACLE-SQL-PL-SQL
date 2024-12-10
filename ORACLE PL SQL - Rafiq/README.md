@@ -155,3 +155,55 @@ BEGIN
 END;
 /
 ```
+
+##### Bind Variables
+ALso called host variables. Used in SQL statements and PL/SQL blocks. Values can be output using the PRINT command.
+
+```
+-- DECLARE Bind Variable
+VARIABLE X NUMBER(15);
+BEGIN
+    :X := 100;
+END;
+/
+
+-- PRINT Bind Variable value
+PRINT X;
+```
+
+```
+VARIABLE B_EMP_SALARY NUMBER;
+
+BEGIN
+    SELECT SALARY
+    INTO :B_EMP_SALARY
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID=200;
+END;
+/
+
+PRINT B_EMP_SALARY
+```
+
+```
+VARIABLE B_RESULT NUMBER;
+
+BEGIN
+    SELECT (SALARY*12)+NVL(COMMISSION_PCT, 0)
+    INTO :B_RESULT
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID=200;
+END;
+/
+
+PRINT B_RESULT
+```
+
+
+##### Commenting the code
+```
+-- Single Line Comment Example
+/* Multi Line
+Comment
+Example */
+```
