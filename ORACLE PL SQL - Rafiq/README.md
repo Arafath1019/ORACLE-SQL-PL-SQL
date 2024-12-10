@@ -84,3 +84,74 @@ BEGIN
 END;
 /
 ```
+
+##### Multiple Variable use
+```
+SET SERVEROUTPUT ON
+
+DECLARE
+    V_NAME VARCHAR2(25);
+    V_SALARY NUMBER(10);
+
+BEGIN
+    SELECT FIRST_NAME, SALARY
+    INTO V_NAME, V_SALARY
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID = 200;
+
+    DBMS_OUTPUT.PUT_LINE('FIRST NAME IS: ' || V_NAME);
+    DBMS_OUTPUT.PUT_LINE('SALARY IS: ' || V_SALARY);
+END;
+/
+```
+##### Avoid using variable names
+Declare state variable name and select state variable name should not be same.
+```
+-- BAD PRACTICE
+DECLARE
+    FIRST_NAME VARCHAR2(25);
+BEGIN
+    SELECT FIRST_NAME
+    INTO FIRST_NAME
+    FROM EMPLOYEE
+    WHERE EMPLOYEE_ID=200;
+    DBMS_OUTPUT.PUT_LINE('FIRST NAME IS: ' || FIRST_NAME);
+END;
+/
+```
+##### %TYPE Attribute
+```
+DECLARE
+    V_FIRST_NAME EMPLOYEES.FIRST_NAME%TYPE;
+BEGIN
+    SELECT FIRST_NAME
+    INTO V_FIRST_NAME
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID=200;
+    DBMS_OUTPUT.PUT_LINE('FIRST NAME IS: ' || V_FIRST_NAME);
+END;
+/
+```
+
+```
+DECLARE
+    V_BALANCE NUMBER(7, 2);
+    V_MIN_BALANCE V_BALANCE%TYPE := 1000;
+BEGIN
+    V_BALANCE := 15000;
+    DBMS_OUTPUT.PUT_LINE(V_BALANCE);
+END;
+/
+```
+##### Double quotation mark
+```
+DECLARE
+    V_EVENT VARCHAR2(15);
+BEGIN
+    V_EVENT := q'!Father's Day!';
+    DBMS_OUTPUT.PUT_LINE('3rd Sunday in June is: ' || V_EVENT);
+    V_EVENT := q'[Mother's Day]';
+    DBMS_OUTPUT.PUT_LINE('2nd Sunday in May is: ' || V_EVENT);
+END;
+/
+```
