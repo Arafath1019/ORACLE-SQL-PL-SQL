@@ -207,3 +207,65 @@ PRINT B_RESULT
 Comment
 Example */
 ```
+
+##### SQL Function in PL/SQL
+```
+CREATE OR REPLACE FUNCTION F_CALCULATION
+(
+    PURCHASE NUMBER,
+    SELL NUMBER
+)
+RETURN NUMBER IS
+BEGIN
+    RETURN SELL-PURCHASE;
+END;
+/
+
+SELECT F_CALCULATION(120, 100) FROM DUAL;
+```
+
+```
+CREATE OR REPLACE FUCNTION F_jog
+(
+    X NUMBER,
+    Y NUMBER, 
+    Z NUMBER,
+    A NUMBER
+)
+RETURN NUMBER IS
+BEGIN
+    RETURN X/Y-Z+A;
+END;
+/
+
+SELECT F_jog(100,5,1,2) FROM DUAL;
+```
+
+```
+DECLARE
+    v_salary NUMBER(6):=6000;
+    v_sal_hike VARCHAR2(5):='1000';
+    v_total_salary number(6);
+
+BEGIN
+    v_total_salary := v_salary + v_salary_hike;
+    DBMS_OUTPUT.PUT_LINE(v_total_salary);
+END;
+/
+```
+
+##### Boolean Variable
+```
+DECLARE
+    V_VSAL NUMBER(10):=10000;
+    good_sal BOOLEAN;
+BEGIN
+    good_sal := V_VSAL BETWEEN 50000 AND 150000;
+    IF good_sal THEN
+        DBMS_OUTPUT.PUT_LINE('YES');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('NO');
+    END IF;
+END;
+/
+```
