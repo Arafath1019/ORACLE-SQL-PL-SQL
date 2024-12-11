@@ -269,3 +269,59 @@ BEGIN
 END;
 /
 ```
+
+##### IF Statement
+```
+DECLARE
+    V_AGE NUMBER:=10;
+BEGIN
+    IF V_AGE < 11 THEN
+        DBMS_OUTPUT.PUT_LINE('Child');
+    ELSIF V_AGE < 20 THEN
+        DBMS_OUTPUT.PUT_LINE('Young');
+    ELSIF V_AGE < 30 THEN
+        DBMS_OUTPUT.PUT_LINE('Twenties');
+    ELSIF V_AGE < 40 THEN
+        DBMS_OUTPUT.PUT_LINE('Thirties');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Always Young');
+    END IF;
+END;
+/
+```
+
+
+##### CASE Statement
+```
+DECLARE
+    V_NAME VARCHAR2(25) := UPPER('&grade');
+    V_APPRAISAL VARCHAR2(20);
+BEGIN
+    V_APPRAISAL := 
+    CASE
+    V_NAME
+        WHEN 'AZIZ' THEN 'Excellent'
+        WHEN 'FOYSAL' THEN 'Very Good'
+        WHEN 'RAFIQ' THEN 'GOOD'
+        ELSE 'No Such Grade'
+    END;
+    DBMS_OUTPUT.PUT_LINE('Name: ' || V_NAME || ' Appraisal: ' || V_APPRAISAL);
+END;
+/
+```
+
+```
+DECLARE
+    V_GRADE CHAR(1) := UPPER('&grade');
+    V_APPRAISAL VARCHAR2(20);
+BEGIN
+    V_APPRAISAL :=
+    CASE
+        WHEN V_GRADE = 'A' THEN 'Excellent'
+        WHEN V_GRADE IN ('B', 'C') THEN 'Good'
+        ELSE 'No Such Grade'
+    END;
+    DBMS_OUTPUT.PUT_LINE('Grade: ' || V_GRADE || ' Appraisal: ' || V_APPRAISAL);
+END;
+/
+```
