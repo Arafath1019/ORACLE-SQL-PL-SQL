@@ -362,3 +362,81 @@ BEGIN
 END;
 /
 ```
+
+#### Basic Loop in PL/SQL
+```
+SET SERVEROUTPUT ON
+
+DECLARE
+    X NUMBER(10) := 0;
+BEGIN
+    LOOP
+        X := X+1;
+        DBMS_OUTPUT.PUT_LINE(X);
+        EXIT WHEN X > 5;
+    END LOOP;
+END;
+/
+```
+
+```
+CREATE TABLE EMPLOYEE
+(
+    ID NUMBER(10),
+    HIREDATE DATE
+);
+
+DECLARE
+    X NUMBER(10) := 0;
+BEGIN
+    LOOP
+        X := X + 1;
+        INSERT INTO EMPLOYEE VALUES(X, SYSDATE);
+        EXIT WHEN X > 5;
+    END LOOP;
+END;
+/
+```
+
+```
+DECLARE
+    V_COUNTRY_ID LOCATIONS.COUNTRY_ID%TYPE := 'CA';
+    V_LOC_ID LOCATIONS.LOCATION_ID%TYPE;
+    V_COUNTER NUMBER(2) := 1;
+    V_NEW_CITY LOCATIONS.CITY%TYPE := 'Montreal';
+BEGIN
+    SELECT MAX(location_id) INTO V_LOC_ID FROM locations WHERE country_id = V_COUNTRY_ID;
+
+    LOOP
+        INSERT INTO LOCATIONS(location_id, city, country_id)
+        VALUES((V_LOC_ID + V_COUNTER), V_NEW_CITY, V_COUNTRY_ID);
+        V_COUNTER := V_COUNTER + 1;
+        EXIT WHEN V_COUNTER > 3;
+    END LOOP;
+END;
+/
+```
+
+##### While Loop in PL/SQL
+```
+DECLARE
+    X NUMBER(10) := 0;
+BEGIN
+    WHILE X < 5 LOOP
+        X := X + 1;
+        DBMS_OUTPUT.PUT_LINE(X);
+    END LOOP;
+END;
+/
+```
+
+##### For Loop in PL/SQL
+```
+DECLARE
+    X NUMBER(10) := 0;
+BEGIN
+    FOR X IN 1..5 LOOP
+        DBMS_OUTPUT.PUT_LINE(X)
+    END LOOP;
+END;
+```
