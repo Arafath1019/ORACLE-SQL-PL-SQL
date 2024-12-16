@@ -462,3 +462,51 @@ BEGIN
 END;
 /
 ```
+
+##### Insert into table in PL/SQl
+```
+CREATE TABLE retired_emp
+(
+    EMPNO NUMBER(4),
+    ENAME VARCHAR2(10),
+    JOB VARCHAR2(9),
+    MGR NUMBER(4),
+    HIREDATE DATE,
+    LEAVEDATE DATE,
+    SAL NUMBER(7, 2),
+    COMM NUMBER(7, 2),
+    DEPTNO NUMBER(2)
+);
+
+DECLARE
+    V_EMPLOYEE_NUMBER NUMBER := 125;
+    V_EMP_REC retired_emp%rowtype;
+BEGIN
+    SELECT employee_id, last_name, job_id, manager_id, hire_date, leave_date, salary, commission, dept_no 
+    INTO V_EMP_REC
+    FROM EMPLOYEES
+    WHERE EMPLOYEES.EMPLOYEE_ID = V_EMPLOYEE_NUMBER;
+
+    INSERT INTO retired_emp VALUES V_EMP_REC;
+END;
+/
+```
+
+##### Update Record in table in PL/SQL
+```
+DECLARE
+    V_EMPLOYEE_NUMBER NUMBER := 125;
+    V_EMP_REC retired_emp%rowtype;
+BEGIN
+    SELECT *
+    INTO V_EMP_REC 
+    FROM retired_emp
+    WHERE empno = V_EMPLOYEE_NUMBER;
+    V_EMP_REC.SAL = 200;
+    V_EMP_REC.COMM = 100;
+    UPDATE retired_emp
+    SET ROW = V_EMP_REC
+    WHERE empno = V_EMPLOYEE_NUMBER;
+END;
+/
+```
