@@ -602,3 +602,33 @@ BEGIN
 END;
 /
 ```
+
+
+#### Exception Handling
+1. Predefined exception
+```
+    DECLARE
+        v_number;
+    BEGIN
+    BEGIN SELECT 1000/9 INTO V FROM DUAL.
+        DBMS_OUTPUT.PUT_LINE(V);
+        EXCEPTION
+            WHEN ZERO_DIVIDE THEN
+                DBMS_OUTPUT.PUT_LINE('You Can not divide by zero')
+    END;
+    /
+```
+
+```
+DECLARE 
+    v_lname VARCHAR(15);
+BEGIN
+    SELECT last_name INTO v_lname
+    FROM employee
+    WHERE first_name = 'John';
+    DBSM_OUTPUT.put_line(v_lname);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Your select statement retrieved multiple rows. COnsider using a cursor')
+END;
+```
