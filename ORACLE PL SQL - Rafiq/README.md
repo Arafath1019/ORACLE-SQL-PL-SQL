@@ -510,3 +510,95 @@ BEGIN
 END;
 /
 ```
+
+##### Cursors in PL/SQL
+Cursor is a Temporary Memory. It is Allocated by Database Server at the Time of Performing DML operations on the Table by the User. Cursors are used to store database Tables.
+Two types of cursors: Implicit Cursor And Explicit Cursor.
+1. Implicit Cursor
+Implicit cursors are also known as Default Cursors of SQL Server. These cursors are allocated by SQL Server when the user performs DML operations.
+```
+DECLARE
+    V_EMP_NO EMPLOYEES.EMPLOYEE_ID%TYPE;
+BEGIN
+    SELECT EMPLOYEE_ID
+    INTO V_EMP_NO
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID = 101;
+END;
+```
+2. Explicit Cursor
+Explicit cursors are Created by Users whenever the user requires them. Explicit cursors are used for Fetching data from Table in Row-By-Row manner.
+
+```
+DECLARE
+    CURSOR c_emp_cursor IS
+    SELECT employee_id, last_name FROM EMPLOYEES
+    WHERE department_id = 30;
+
+    v_empno employees.employee_id%TYPE;
+    v_lname employees.last_name%TYPE;
+BEGIN
+    OPEN c_emp_cursor;
+    FETCH c_emp_cursor
+    INTO v_empno, v_lname;
+    DBMS_OUTPUT.PUT_LINE(v_empno || ' ' || v_lname);
+    CLOSE c_emp_cursor;
+END;
+/
+```
+
+Loop In Cursor
+```
+DECLARE
+    CURSOR c_emp_cursor IS 
+    SELECT employee_id, last_name FROM employees
+    WHERE department_id = 30;
+
+    v_empno employees.employee_id%TYPE;
+    v_lname employees.last_name%TYPE;
+BEGIN
+    OPEN c_emp_cursor;
+    LOOP
+        FETCH c_emp_cursor INTO v_empno, v_lname;
+        EXIT WHEN c_emp_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(v_empno || ' ' || v_lname);
+    END LOOP;
+    CLOSE c_emp_cursor;
+END;
+/
+```
+
+FOR Loop In Cursor
+```
+DECLARE 
+    CURSOR c_emp_cursor IS 
+    SELECT employee_id, last_name FROM employyes
+    WHERE deparment_id = 30;
+BEGIN
+    FOR emp_record IN c_emp_cursor LOOP
+        DBMS_OUTPUT.PUT_LINE(emp_record.employee_id || ' ' || emp_record.last_name)
+    END FOR;
+END;
+/
+```
+
+%ROWCOUNT & %NOTFOUND
+```
+DECLARE
+    CURSOR c_emp_cursor IS
+    SELECT employee_id, last_name
+    FROM employees
+    ORDER BY 1;
+    v_emp_record c_emp_cursor%ROWTYPE;
+BEGIN
+    OPEN c_emp_cursor;
+    LOOP
+        FETCH c_emp_cursor
+        INTO v_emp_record;
+        EXIT WHEN c_emp_cursor%ROWCOUNT > 0 OR c_emp_cursor%NOTFOUNG;
+        DBMS_output.PUT_LINE(v_emp_record.employee_id '' || v_emp_record.last_name);
+    END LOOP
+    CLOSE c_emp_cursor;
+END;
+/
+```
