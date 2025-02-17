@@ -646,3 +646,67 @@ SELECT Sum(Salary), Department_Id
 FROM employees
 HAVING Sum(Salary) >= 50000;
 ```
+
+
+### Advanced Grouping
+* ROLLUP operation to perform subtotal
+```
+SELECT Department_Id, Job_Id, SUM(Salary) 
+FROM EMPLOYEES
+GROUP BY ROLLUP(Department_Id, Job_Id)
+ORDER BY 1,2;
+```
+* CUBE operation to produce cross tabulation values.
+```
+SELECT Department_Id, Job_Id, SUM(Salary)
+FROM EMPLOYEES
+GROUP BY CUBE(Department_Id, Job_Id)
+ORDER BY 1,2;
+```
+* GROUPING SETS to produce a single result set
+```
+SELECT Department_Id, Job_Id, SUM(Salary), GROUPING(Department_Id), GROUPING(Job_Id)
+FROM Employees
+GROUP BY CUBE(Department_Id, Job_Id)
+ORDER BY 1,2;
+```
+
+### Sub-Queries
+* Query within query is called subquery
+* Inner query executes first and returns the result to outer query
+* Two Types of Subqueries
+1. Single Row Subquery
+
+```
+SELECT First_Name, Salary FROM Employees
+WHERE Salary > (
+    SELECT Salary FROM Employees WHERE First_name = 'Nancy'
+);
+
+UPDATE Employees SET Salary = Salary + 1
+WHERE Department_Id = (
+    SELECT Department_Id FROM Employees WHERE First_Name = 'Nancy'
+);
+```
+
+2. Multi row subquery
+```
+SELECT First_Name, Last_Name, Salary
+FROM Employees WHERE Salary > all(
+    SELECT Salary FROM Employees WHERE First_Name = 'John'
+);
+
+SELECT First_Name, Last_Name, Salary
+FROM Employees WHERE Salary > any (
+    SELECT Salary FROM Employees WHERE First_Name = 'John'
+);
+```
+
+For Example:
+Find out the Second Highest Salary
+```
+SELECT MAX(Salary) FROM Employees
+WHERE Salary < (
+    SELECT MAX(Salary) FROM Employees
+);
+```
