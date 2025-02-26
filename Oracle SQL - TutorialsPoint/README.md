@@ -671,7 +671,7 @@ GROUP BY CUBE(Department_Id, Job_Id)
 ORDER BY 1,2;
 ```
 
-### Sub-Queries
+### Subqueries
 * Query within query is called subquery
 * Inner query executes first and returns the result to outer query
 * Two Types of Subqueries
@@ -710,3 +710,5 @@ WHERE Salary < (
     SELECT MAX(Salary) FROM Employees
 );
 ```
+
+### Advanced Subqueries
