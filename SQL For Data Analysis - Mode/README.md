@@ -166,3 +166,35 @@ ORDER BY year DESC, year_rank;
 Multi-line
 Comment
 */
+
+### SQL Aggregate Functions
+* `COUNT` - counts how many rows are in a particular column
+* `SUM` - adds together all the values in a particular column
+* `MIN` and `MAX` - return the lowest and highest values in a particular column, respectively.
+* `AVG` - calculates the average of a group of selected values
+
+### SQL Count
+`COUNT` is a SQL aggregate function for counting the number of rows in a particular column.
+
+```
+SELECT COUNT(*) FROM tutorial.aapl_historical_stock_price;
+
+SELECT COUNT(high) 
+FROM tutorial.aapl_historical_stock_price;
+
+SELECT COUNT(date) AS count_of_date
+FROM tutorial.aapl_historical_stock_price;
+
+SELECT COUNT(date) AS "Count of Date"
+FROM tutorial.aapl_historical_stock_price;
+```
+
+`COUNT(1)` has the same effect as `COUNT(*)`.
+
+### SQL SUM
+`SUM` is a SQL aggregate function that totals the values in a given column. Unlike `COUNT`, `SUM` can only use on columns containing numerical values.
+
+```
+SELECT SUM(volume) 
+FROM tutorial.aapl_historical_stock_price;
+```
