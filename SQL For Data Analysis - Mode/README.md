@@ -198,3 +198,48 @@ FROM tutorial.aapl_historical_stock_price;
 SELECT SUM(volume) 
 FROM tutorial.aapl_historical_stock_price;
 ```
+
+### SQL MIN/MAX
+`MIN` & `MAX` are SQL aggregation functions that return the lowest and highest values in a particular column.
+
+```
+SELECT MIN(volume) AS min_volume, MAX(volume) AS max_volume
+FROM tutorial.aapl_historical_stock_price;
+```
+
+### SQL AVG
+`AVG` is a SQL aggregate function that calculates the average of a selected group of values. It can only be used on numerical columns and ignores nulls completely.
+
+```
+SELECT AVG(high)
+FROM tutorial.aapl_historical_stock_price
+WHERE high IS NOT NULL;
+```
+
+### SQL GROUP BY
+`GROUP BY` allows to separate data into groups, which can be aggregated independently of one another.
+
+```
+SELECT year, COUNT(*) AS count 
+FROM tutorial.aapl_historical_stock_price
+GROUP BY year;
+
+SELECT year, month, COUNT(*) AS count
+FROM tutorial.aapl_historical_stock_price
+GROUP BY year, month;
+```
+
+GROUP BY column numbers:
+```
+SELECT year, month, COUNT(*) AS count
+FROM tutorial.aapl_historical_stock_price
+GROUP BY 1,2;
+```
+
+Using GROUP BY with ORDER BY:
+```
+SELECT year, month, COUNT(*) AS count
+FROM tutorial.aapl_historical_stock_price
+GROUP BY year, month
+ORDER BY month, year;
+```
