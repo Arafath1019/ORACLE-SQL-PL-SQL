@@ -243,3 +243,22 @@ FROM tutorial.aapl_historical_stock_price
 GROUP BY year, month
 ORDER BY month, year;
 ```
+
+### SQL HAVING
+```
+SELECT year, month, MAX(high) AS month_high
+FROM tutorial.aapl_historical_stock_price
+GROUP BY year, month
+HAVING MAX(high) > 400
+ORDER BY year, month;
+```
+
+`HAVING` is the clean way to filter a query that has been aggregated.
+
+### Query Clause Order
+1. SELECT
+2. FROM
+3. WHERE
+4. GROUP BY
+5. HAVING
+6. ORDER BY
