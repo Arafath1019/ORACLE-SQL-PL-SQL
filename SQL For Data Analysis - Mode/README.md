@@ -262,3 +262,98 @@ ORDER BY year, month;
 4. GROUP BY
 5. HAVING
 6. ORDER BY
+
+### SQL CASE
+The `CASE` statement is SQL's way of handling if/then login. The `CASE` statement is followed by at least one pair of `WHEN` and `THEN` statements. Every `CASE` statement must end with the `END` statement. The `ELSE` statement is optional and provides a way to capture values not specified in the `WHEN`/`THEN` statements. 
+
+```
+SELECT player_name, 
+        year,
+        CASE WHEN year='SR' THEN 'yes' ELSE 'no' END AS is_a_senior
+FROM benn.college_football_players;
+```
+
+Adding multiple conditions to a CASE statement.
+```
+SELECT player_name,
+    weight,
+    CASE WHEN weight > 250 THEN 'over 250'
+        WHEN weight > 200 AND weight <= 250 THEN '201-250'
+        WHEN weight > 175 AND weight <= 200 THEN '176-200'
+        ELSE '175 or under' END AS weight_group
+FROM benn.college_football_players;
+```
+
+```
+SELECT player_name,
+    CASE WHEN year='FR' AND position='WR' THEN 'frosh_wr' ELSE NULL END AS sample_case_statement
+FROM benn.college_football_players;
+```
+
+```
+SELECT CASE WHEN year = 'FR' THEN 'FR'
+    ELSE 'Not FR' END AS year_group,
+    COUNT(1) AS count
+FROM benn.college_football_players
+GROUP BY CASE WHEN year='FR' THEN 'FR' 
+ELSE 'Not FR' END;
+```
+
+```
+SELECT CASE WHEN year='FR' THEN 'FR'
+    WHEN year='SO' THEN 'SO'
+    WHEN year='JR' THEN 'JO'
+    WHEN year='SR' THEN 'SR'
+    ELSE 'No Year Data' END AS year_group,
+    COUNT(1) AS count
+FROM benn.college_football_players
+GROUP BY 1;
+```
+
+```
+SELECT COUNT(CASE WHEN year='FR' THEN 1 ELSE NULL END) AS fr_count,
+COUNT(CASE WHEN year='SO' THEN 1 ELSE NULL END) AS so_count
+FROM benn.college_football_players;
+```
+
+### SQL DISTINCT
+Returns the unique values in a particular column using `SELECT DISTINCT` syntax.
+```
+SELECT DISTINCT month
+FROM tutorial.aapl_historical_stocK_price;
+```
+If includes two or more columns in a `SELECT DISTINCT` clause, results will contain all of the unique pairs of those columns.
+```
+SELECT DISTINCT year, month
+FROM tutorial.aapl_historical_stock_price;
+```
+
+```
+SELECT COUNT(DISTINCT months) AS unique_months
+FROM tutorial.aapl_historical_stock_price;
+```
+
+It's worth nothing that using `DISTINCT`, particularly in aggregations, can slow queries down quite a bit.
+
+### SQL Joins
+Anatomy of a join:
+```
+SELECT teams.conference AS conference,
+    AVG(players.weight) AS average_weight
+FROM benn.college_football_players players
+JOIN benn.college_football_teams teams
+ON teams.school_name = players.school_name
+GROUP BY teams.conference
+ORDER BY AVG(players.weight) DESC;
+```
+
+Aliases in SQL: When performing joins, it's easiest to give table names aliases, like `benn.college_football_players players`.
+
+JOIN and ON: `ON` indicates how the two tables relate to each other. `ON teams.school_name = players.school_name`
+
+```
+SELECT *
+FROM benn.college_football_players players
+JOIN benn.college_school_teams teams
+ON teams.school_name = players.school_name;
+```
