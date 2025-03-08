@@ -357,3 +357,18 @@ FROM benn.college_football_players players
 JOIN benn.college_school_teams teams
 ON teams.school_name = players.school_name;
 ```
+
+### SQL INNER JOIN
+Inner join can be written as either `JOIN ... ON` or `INNER JOIN ... ON`. Inner joins eliminate rows from both tables that do not satisfy the join condition set forth in the `ON` statement. In mathematical terms, an inner join is the intersection of the two tables.
+<img src='../images/4.png' alt='Inner Join' />
+Therefore, if a player goes to a school that isn't in the teams, that player won't be included in the result from an inner join. Similarly, if there are schools in the teams table that don't match to any schools in the players table, those rows won't be included in the results either.
+
+Joining tables with identical column names:
+
+```
+SELECT players.*,
+    teams.*
+FROM benn.college_football_players players
+JOIN benn.college_football_teams teams
+ON teams.school_name = players.school_name;
+```
