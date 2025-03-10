@@ -372,3 +372,30 @@ FROM benn.college_football_players players
 JOIN benn.college_football_teams teams
 ON teams.school_name = players.school_name;
 ```
+
+### SQL Outer Joins
+Outer joins are joins that return matched values and unmatched values from either or both tables. There are a few types of outer joins:
+* `LEFT JOIN`: returns only unmatched rows from the left tabel, as well as matched rows in both tables.
+* `RIGHT JOIN`: returns only unmatched rows from the right table, as well as matched rows in both tables.
+* `FULL OUTER JOIN`: returns unmatched rows from both tables, as well as matched rows in both tables.
+
+`LEFT JOIN` is also referred to as `OUTER LEFT JOIN`. `RIGHT JOIN` is also referred to as `OUTER RIGHT JOIN`. `FULL OUTER JOIN` is also referred to as `OUTER JOIN`.
+
+Outer Joins vs. Inner join: When performing an inner join, rows from wither table that are unmatched in the other table are not returned. In an outer join, unmatched rows in one or both tables can be returned.
+```
+SELECT users.name, likes.like FROM users
+JOIN likes 
+ON users.id = likes.user_id;
+```
+
+<img src='../images/5.png' alt='Inner Join' />
+
+### SQL LEFT JOIN
+
+```
+SELECT companies.permalink AS companies_permalink, companies.name AS companies_name, acquisitions.company_permalink AS acquisitions_permalink,
+acquisitions.acquired_at AS acquired_date
+FROM tutorial.crunchbase_companies companies
+LEFT JOIN tutorial.crunchbase_acquisition acquisitions
+ON companies.permalink=acquisitions.company_permalink;
+```
