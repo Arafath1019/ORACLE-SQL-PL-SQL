@@ -399,3 +399,44 @@ FROM tutorial.crunchbase_companies companies
 LEFT JOIN tutorial.crunchbase_acquisition acquisitions
 ON companies.permalink=acquisitions.company_permalink;
 ```
+
+### SQL RIGHT JOIN
+Right joins return all rows from the table in the `RIGHT JOIN` clause and only matching rows from the table in the `FROM` clause.
+`RIGHT JOIN` is rarely used because it can achieve the results of a `RIGHT JOIN` by simply switching the two tables names in a `LEFT JOIN`.
+Same results for LEFT JOIN & RIGHT JOIN (Produces the same result):
+```
+SELECT companies.permalink AS companies_permalink, companies.name AS companies_name, acquisitions.company_permalink AS acquisitions_permalink, acquisitions.acquired_at AS acquired_date
+FROM tutorial.crunchbase_acquisitions acquisitions
+RIGHT JOIN tutorial.crunchbase_companies companies
+ON companies.permalink = acquisitions.company_permalink;
+
+SELECT companies.permalink AS companies_permalink, companies.name AS companies_name, acquisitions.company_permalink AS acquisitions_permalink, acquisitions.acquired_at AS acquired_date
+FROM tutorial.crunchbase_companies companies
+LEFT JOIN tutorial.crunchbase_acquisitions acquisitions
+ON companies.permalink = acquisitions.company_permalink;
+```
+
+`LEFT JOIN` & `RIGHT JOIN` can be written as `LEFT OUTER JOIN` & `RIGHT OUTER JOIN` respectively.
+
+### SQL Joins Using WHERE or ON
+Filtering in the ON clause: Normally filtering is processed in the `WHERE` clause once the two tables have already been joined. It's possible to filter one or both of the tables before joining them. 
+```
+SELECT companies.permalink AS companies_permalink, companies.name AS companies_name, acquisitions.company_permalink AS acquisitions_permalink, acquisitions.acquired_at AS acquired_date
+FROM tutorial.crunchbase_companies companies
+LEFT JOIN tutorial.crunchbase_acquisitions acquisitions
+ON companies.permalink = acquisitions.company_permalink
+AND acquisitions.company_permalink != '/company/1000memories'
+ORDER BY 1;
+```
+Above query returns everything in the `tutorial.crunchbase_acquisitions` table was joined on except for the row for which company_permalink is '/company/1000memories'. The conditional statement `AND ...` is evaluated before the join occurs. 
+
+Filtering in the WHERE clause: If move the same filter to the `WHERE` clause, will notice that the filter happens after the tables are joined. The result is that the 1000memories row is joined onto the original table, but then it is filtered our entirely(in both tables) in the `WHERE` clause before displaying results.
+```
+SELECT companies.permalink AS companies_permalink, companies.name AS companies_name, acquisitions.company_permalink AS acquisitions_permalink, acquisitions.acquired_at AS acquired_date
+FROM tutorial.crunchbase_acquisitions acquisitions
+LEFT JOIN tutorial.crunchbase_acquisitions acquisitions
+ON companies.permalink = acquisitions.company_permalink
+WHERE acquisitions.company_permalink != '/company/1000memories'
+OR acquisitions.company_permalink IS NULL
+ORDER BY 1;
+```
