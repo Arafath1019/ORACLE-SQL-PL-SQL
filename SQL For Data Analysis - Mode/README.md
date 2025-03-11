@@ -440,3 +440,79 @@ WHERE acquisitions.company_permalink != '/company/1000memories'
 OR acquisitions.company_permalink IS NULL
 ORDER BY 1;
 ```
+
+### SQL FULL OUTER JOIN
+`FULL JOIN`, which can also be written as `FULL OUTER JOIN`. `FULL JOIN` returns unmatched rows from both tables. It is commonly used in conjunction with aggregations to understand the amount of overlap between two tables.
+
+```
+SELECT COUNT(CASE WHEN companies.permalink IS NOT NULL AND acquisitions.company_permalink IS NULL THEN companies.permalink ELSE NULL END) AS companies_only,
+COUNT(CASE WHEN companies.permalink IS NOT NULL AND acquisitions.company_permalink IS NOT NULL THEN companies.permalink ELSE NULL END) AS both_tables,
+COUNT(CASE WHEN companies.permalink IS NULL AND acquisitions.company_permalink IS NOT NULL THEN acquisitions.company_permalink ELSE NULL END) AS acquisitions_only
+FROM tutorial.crunchbase_companies companies
+FULL JOIN tutorial.crunchbase_acquisitions acquisitions
+ON companies.permalink = acquisitions.company_permalink;
+```
+
+### SQL UNION
+SQL joins allow to combine two datasets side-by-side, but `UNION` allows to stack one dataset on top of the other. Differently, `UNION` allows to write two select statements, and to have the results of one statement display in the same table as the results from the other statement.
+The following query will display all results from the first portion of the query, then all results from the second portion in the same table.
+```
+SELECT * FROM tutorial.crunchbase_investments_part1
+UNION
+SELECT * FROM tutorial.crunchbase_investments_part2;
+```
+
+Note that, `UNION` only appends distinct values. More specifically, when use `UNION`, the dataset is appended, and any rows in the appended table are exactly identical to rows in the first table are dropped. If like to append all the values from the second table, use `UNION ALL`. 
+```
+SELECT * FROM tutorial.crunchbase_investments_part1
+UNION ALL
+SELECT * FROM tutorial.crunchbase_investments_part2;
+```
+
+SQL has strict rules for appending data:
+* Both tables must have the same number of columns.
+* The columns must have the same data types in the same order as the first table.
+
+### SQL Joins with Comparison Operators
+```
+SELECT companies.permalink, companies.name, companies.status, COUNT(investments.investor_permalink) AS investors
+FROM tutorial.crunchbase_companies companies
+LEFT JOIN tutorial.crunchbase_investments_part1 investments
+ON companies.permalink = investments.company_permalink
+AND investments.funded_year > companies.founded_year + 5
+GROUP BY 1,2,3;
+```
+
+```
+SELECT companies.permalink, companies.name, companies.status, COUNT(investments.investor_permalink) AS investors
+FROM tutorial.crunchbase_companies companies
+LEFT JOIN tutorial.crunchbase_investments_part1 investments
+ON companies.permalink = investments.company_permalink
+WHERE investments.funded_year > companies.founded_year + 5
+GROUP BY 1,2,3;
+```
+
+### SQL Joins on Multiple Keys
+Reasons to join tables on multiple foreign keys:
+* To do with accuracy
+* To do with performance. SQL uses "indexes" (essentially pre-defined joins) to speed up queries.
+
+```
+SELECT companies.permalink, companies.name, investments.company_name, investments.company_permalink
+FROM tutorial.crunchbase_companies companies
+LEFT JOIN tutorial.crunchbase_investments_part1 investments
+ON companies.permalink = investments.company_permalink
+AND companies.name = investments.company_name;
+```
+
+### SQL Self Joins
+Self joining means joining a table to itself.
+```
+SELECT DISTINCT japan_investments.company_name, japan_investments.company_permalink
+FROM tutorial.crunchbase_investments_part1 japan_investments
+JOIN tutorial.crunchbase_investments_part1 gb_investments
+ON japan_investments.company_name = gp_investments.company_name
+AND gb_investments.investor_country_code = "GBR"
+WHERE japan_investments.investor_country_code = 'JPN'
+ORDER BY 1;
+```
