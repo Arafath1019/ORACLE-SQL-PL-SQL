@@ -516,3 +516,10 @@ AND gb_investments.investor_country_code = "GBR"
 WHERE japan_investments.investor_country_code = 'JPN'
 ORDER BY 1;
 ```
+
+### SQL Data Types
+`COUNT` works with any data type, but `SUM` only works for numerical data. In order to use `SUM`, the data must appear to be numeric, but it must also be stored in the database in a numeric form.
+
+The `INTEGER` data type only stores whole numbers - no decimals. The `DOUBLE PRECISION` data type, on the other hand can store between 15 and 17 significant decimal digits.
+
+Some SQL Data Types: CHAR, VARCHAR, BINARY, BLOB, MEDIUMBLOB, LONGBLOB, ENUM, SET, BOOL, BOOLEAN, INT, INTEGER, FLOAT, DOUBLE, DOUBLE PRECISION, DECIMAL, DATE, DATETIME, TIMESTAMP, TIME, YEAR, etc.
