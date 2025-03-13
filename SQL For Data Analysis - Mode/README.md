@@ -523,3 +523,26 @@ ORDER BY 1;
 The `INTEGER` data type only stores whole numbers - no decimals. The `DOUBLE PRECISION` data type, on the other hand can store between 15 and 17 significant decimal digits.
 
 Some SQL Data Types: CHAR, VARCHAR, BINARY, BLOB, MEDIUMBLOB, LONGBLOB, ENUM, SET, BOOL, BOOLEAN, INT, INTEGER, FLOAT, DOUBLE, DOUBLE PRECISION, DECIMAL, DATE, DATETIME, TIMESTAMP, TIME, YEAR, etc.
+
+### SQL Date Format
+
+### Data Wrangling with SQL
+Data munging or data wrangling is loosely the process of manually converting or mapping data from one row form into another format that allows for more convenient consumption of the data with the help of semi-automated tools.
+In other words, data wrangling or munging is the process of programmatically transforming data into a format that makes it easier to work with. This might mean modifying all of the values in a given column in a certain way or merging multiple columns together. The necessity for data wrangling is often a biproduct of poorly collected or presented data.
+
+### Using SQL String Functions to Clean Data
+* Cleaning Strings: Let's start with `LEFT`. `LEFT` is used to pull a certain number of characters from the left side of a string and present them as a separate string. The syntax is `LEFT(string, number of characters)`.
+
+```
+SELECT incidnt_num, date, LEFT(date, 10) AS cleaned_date
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+`RIGHT` does the same thing, but from the right side.
+```
+SELECT date, RIGHT(date, 17) AS cleaned_time
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+`LENGTH` function returns the length of a string.
+When using functions within other functions, it's important to remember that the innermost functions will be evaluated first, followed by the functions that encapsulated them.
