@@ -531,6 +531,8 @@ Data munging or data wrangling is loosely the process of manually converting or 
 In other words, data wrangling or munging is the process of programmatically transforming data into a format that makes it easier to work with. This might mean modifying all of the values in a given column in a certain way or merging multiple columns together. The necessity for data wrangling is often a biproduct of poorly collected or presented data.
 
 ### Using SQL String Functions to Clean Data
+
+##### Cleaning strings (LEFT, RIGHT, TRIM)
 * Cleaning Strings: Let's start with `LEFT`. `LEFT` is used to pull a certain number of characters from the left side of a string and present them as a separate string. The syntax is `LEFT(string, number of characters)`.
 
 ```
@@ -546,3 +548,87 @@ FROM tutorial.sf_crime_incidents_2014_01;
 
 `LENGTH` function returns the length of a string.
 When using functions within other functions, it's important to remember that the innermost functions will be evaluated first, followed by the functions that encapsulated them.
+
+The `TRIM` function is used to remove characters from the beginning and end of a string.
+```
+SELECT location, TRIM(both '()' FROM location)
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+The `TRIM` function takes 3 arguments. First, have to specify whether want to remove characters from the beginning('leading'), the end('trailing') or both('both', as used above). Next must specify all characters to be trimmed. Any characters included in the single quotes will be removed from both beginning, end or both sides of the string. Finally, must specify the text want to trim using `FROM`.
+
+##### POSITION and STRPOS
+
+`POSITION` allow to specify a substring, then returns a numerical value equal to the character number(counting from left) where that substring first appears in the target string.
+```
+SELECT incidnt_num, descript, POSITION('A' IN descript) AS a_position
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+Can also able to use the `STRPOS` function to achieve the same results - just replace `IN` with a comma and switch the order of the string and substring.
+```
+SELECT incidnt_num, descript, STRPOS(descript, 'A') AS a_position
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+##### SUBSTR
+`SUBSTR` function syntax: `SUBSTR(*string, *startingg character position*, *# of characters*)`.
+```
+SELECT incidnt_num, date, SUBSTR(date, 4, 2) AS day
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+##### CONCAT
+Combine strings using `CONCAT`.
+```
+SELECT CONCAT(day_of_week, ', ', LEFT(date, 10)) AS day_and_date
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+Alternatively, can use two pipe characters (`||`) to perform the same concatenation.
+```
+SELECT day_of_week || ', ' || LEFT(date, 10) AS day_and_date
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+##### Changing case with UPPER and LOWER
+`LOWER` to force every character in a string to become lower-case. `UPPER` to make all the letters appear in upper-case.
+```
+SELECT UPPER(address) AS address_upper, LOWER(address) AS address_lower
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+##### Turning strings into dates
+```
+SELECT incidnt_num, date, (SUBSTR(date, 7, 4) || '-' || LEFT(date, 2) || '-' || SUBSTR(date, 4, 2))::date AS cleaned_date
+FROM tutorial.sf_crime_incidents_2014_01;
+```
+
+##### Turning dates into more useful dates
+```
+SELECT cleaned_date,
+    EXTRACT('year' FROM cleaned_date) AS year,
+    EXTRACT('month' FROM cleaned_date) AS month,
+    EXTRACT('day' FROM cleaned_date) AS day,
+    EXTRACT('hour' FROM cleaned_date) AS hour,
+    EXTRACT('minute' FROM cleaned_date)
+    AS minute
+FROM tutorial.sf_crime_incidents_cleandate;
+```
+
+The `DATE_TRUNC` function rounds a date to whatever precision is specified. The value displayed is the first value in that period.
+```
+SELECT cleaned_date,
+    DATE_TRUNC('year', cleaned_date) AS year,
+    DATE_TRUNC('month', cleaned_date) AS month
+FROM tutorial.sf_crime_incidents_cleandate;
+```
+
+##### COALESCE
+`COALESCE` is used to replace the null values.
+```
+SELECT descript, COALESCE(descript, 'No Description')
+FROM tutorial.sf_crime_incidents_clean_date
+ORDER BY descript DESC;
+```
+
+### Writing Subqueries in SQL
