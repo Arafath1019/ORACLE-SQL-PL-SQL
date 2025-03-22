@@ -673,3 +673,44 @@ FROM tutorial.sf_crime_incidents_2014_01 incidents
 JOIN (SELECT date FROM tutorial.sf_crime_incidents_2014_01 ORDER BY date LIMIT 5) sub
 ON incidents.date = sub.date;
 ```
+
+```
+SELECT incidents.*, sub.incidents AS incidents_that_day
+FROM tutorial.sf_crime_incidents_2014_01 incidents
+JOIN (SELECT date, COUNT(incident_num) AS incidents FROM tutorial.sf_crime_incidents_2014_01 ORDER BY 1) sub
+ON incidents.date = sub.date
+ORDER BY sub.incidents DESC, time;
+```
+
+```
+SELECT COALESCE(acquisitions.month, investments.month) AS month,
+       acquisitions.companies_acquired,
+       investments.companies_rec_investment
+  FROM (
+        SELECT acquired_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_acquired
+          FROM tutorial.crunchbase_acquisitions
+         GROUP BY 1
+       ) acquisitions
+
+  FULL JOIN (
+        SELECT funded_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_rec_investment
+          FROM tutorial.crunchbase_investments
+         GROUP BY 1
+       )investments
+
+    ON acquisitions.month = investments.month
+ ORDER BY 1 DESC
+```
+
+Subqueries and UNIONS:
+
+```
+SELECT COUNT(*) AS total_rows
+FROM (
+    SELECT * FROM tutorial.crunchbase_investments_part1
+    UNION ALL
+    SELECT * FROM tutorial.crunchbase_investments_part2
+) sub;
+```
