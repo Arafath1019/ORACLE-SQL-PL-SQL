@@ -632,3 +632,44 @@ ORDER BY descript DESC;
 ```
 
 ### Writing Subqueries in SQL
+Subqueries (also known as inner queries or nested queries) are a tool for performing operations in multiple steps.
+```
+SELECT sub.* 
+FROM (SELECT * FROM tutorial.sf_crime_incidents_2014_01 WHERE day_of_week = 'FRIDAY') sub
+WHERE sub.resolution = 'NONE'; 
+```
+Inner query must actually run on its own, as the database will treat it as an independent query. Once the inner query runs, the outer query will run using the results from the inner query as its underlying table. Subqueries are required to have names, which are added after parentheses.
+
+Using subqueries to aggregate in multiple stages:
+```
+SELECT LEFT(sub.date, 2) AS cleaned_month,
+    sub.day_of_week,
+    AVG(sub.incidents) AS average_incidents
+FROM (SELECT day_of_week, date, COUNT(incident_num) AS incidents FROM tutorial.sf_crime_incidents_2014_01 GROUP BY 1,2) sub
+GROUP BY 1,2
+ORDER BY 1,2;
+```
+In general, it's easiest to write inner queries first and revise them until the results make sense.
+
+Subqueries in conditional logic:
+Subqueries can be used in conditional logic (in conjunction with WHERE, JOIN/ON, CASE). The following query returns all of the entries from the earliest date in the dataset.
+```
+SELECT *
+FROM tutorial.sf_crime_incidents_2014_01
+WHERE Date = (SELECT MIN(date) FROM tutorial.sf_crime_incidents_2014_01);
+```
+
+`IN` is the only type of conditional logic that will work when the inner query contains multiple results.
+```
+SELECT *
+FROM tutorial.sf_crime_incidents_2014_01
+WHERE DATE IN (SELECT date FROM tutorial.sf_crime_incidents_2014_01 ORDER BY date LIMIT 5);
+```
+
+Joining subqueries:
+```
+SELECT *
+FROM tutorial.sf_crime_incidents_2014_01 incidents
+JOIN (SELECT date FROM tutorial.sf_crime_incidents_2014_01 ORDER BY date LIMIT 5) sub
+ON incidents.date = sub.date;
+```
