@@ -712,3 +712,54 @@ WHERE Salary < (
 ```
 
 ### Advanced Subqueries
+
+```
+SELECT First_Name, Salary, Department_Id
+FROM Employees Emp_outer
+WHERE 1 = (
+    SELECT COUNT(DISTINCT Salary)
+    FROM Employees Emp_inner
+    WHERE Emp_outer.Department_Id = Emp_inner.Department_Id
+    AND Emp_outer.Salary <= Emp_inner.Salary
+)
+ORDER BY 3;
+```
+
+```
+SELECT First_Name, Salary, Department_Id
+FROM Employees
+WHERE (Department_Id, Manager_Id) IN (
+    SELECT Department_Id, Manager_Id FROM Employees WHERE Salary >= 10000
+);
+```
+
+```
+SELECT First_Name, Salary
+FROM (
+    SELECT First_Name, Last_Name, Salary, Department_Id FROM Employees Emp_outer
+    WHERE 1 = (
+        SELECT COUNT(DISTINCT Salary) FROM Employees Emp_inner
+        WHERE Emp_outer.Department_Id = Emp_inner.Department_Id
+        AND Emp_outer.Salary <= Emp_inner.Salary
+    )
+) WHERE Department_Id = 16;
+```
+
+```
+WITH Emp_Dept_Max AS
+(
+    SELECT First_Name, Last_Name, Salary, Department_Id FROM Employees Emp_outer
+    WHERE 1 = (
+        SELECT COUNT(DISTINCT Salary) FROM Employees Emp_inner
+        WHERE Emp_outer.Department_Id = Emp_inner.Department_Id
+        AND Emp_outer.Salary <= Emp_inner.Salary
+    )
+)
+SELECT * FROM Emp_Dept_Max WHERE Department_Id = 16;
+```
+
+### Creating Sequences
+
+* Automatically generates unique numbers
+* Is used to create primary key value
+* Can be shared
