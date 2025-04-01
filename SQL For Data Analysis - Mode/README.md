@@ -524,8 +524,6 @@ The `INTEGER` data type only stores whole numbers - no decimals. The `DOUBLE PRE
 
 Some SQL Data Types: CHAR, VARCHAR, BINARY, BLOB, MEDIUMBLOB, LONGBLOB, ENUM, SET, BOOL, BOOLEAN, INT, INTEGER, FLOAT, DOUBLE, DOUBLE PRECISION, DECIMAL, DATE, DATETIME, TIMESTAMP, TIME, YEAR, etc.
 
-### SQL Date Format
-
 ### Data Wrangling with SQL
 Data munging or data wrangling is loosely the process of manually converting or mapping data from one row form into another format that allows for more convenient consumption of the data with the help of semi-automated tools.
 In other words, data wrangling or munging is the process of programmatically transforming data into a format that makes it easier to work with. This might mean modifying all of the values in a given column in a certain way or merging multiple columns together. The necessity for data wrangling is often a biproduct of poorly collected or presented data.
@@ -713,4 +711,93 @@ FROM (
     UNION ALL
     SELECT * FROM tutorial.crunchbase_investments_part2
 ) sub;
+```
+
+### SQL Window Functions
+A window function performs a calculation across a set of table rows that are somehow related to the current row. This is comparable to the type of calculation that can be done with an aggregate function. But unlike regular aggregate functions, use of a window function does not cause rows to become grouped into a single output row — the rows retain their separate identities. Behind the scenes, the window function is able to access more than just the current row of the query result.
+
+```
+SELECT duration_seconds,
+SUM(duration_seconds) OVER (ORDER BY start_time) AS running_total
+FROM tutorial.dc_bikeshare_q1_2012
+```
+Adding OVER designates SUM() as a Window Function, means "Take the sum of duration_seconds over the entire result set, in order by start_time"
+
+If want to narrow the window from the entire dataset to individual groups within the dataset, can be used PARTITION BY to do so:
+```
+SELECT start_terminal, duration_seconds, SUM(duration_seconds) OVER (PARTITION BY start_terminal ORDER BY start_time) AS running_total
+FROM tutorial.dc_bikeshare_q1_2012
+WHERE start_time < '2012-01-08'
+```
+
+The usual suspects: SUM, COUNT, and AVG:
+```
+SELECT start_terminal,
+       duration_seconds,
+       SUM(duration_seconds) OVER
+         (PARTITION BY start_terminal) AS running_total,
+       COUNT(duration_seconds) OVER
+         (PARTITION BY start_terminal) AS running_count,
+       AVG(duration_seconds) OVER
+         (PARTITION BY start_terminal) AS running_avg
+  FROM tutorial.dc_bikeshare_q1_2012
+ WHERE start_time < '2012-01-08'
+```
+
+Alternatively, the same functions with ORDER BY:
+```
+SELECT start_terminal,
+       duration_seconds,
+       SUM(duration_seconds) OVER
+         (PARTITION BY start_terminal ORDER BY start_time)
+         AS running_total,
+       COUNT(duration_seconds) OVER
+         (PARTITION BY start_terminal ORDER BY start_time)
+         AS running_count,
+       AVG(duration_seconds) OVER
+         (PARTITION BY start_terminal ORDER BY start_time)
+         AS running_avg
+  FROM tutorial.dc_bikeshare_q1_2012
+ WHERE start_time < '2012-01-08'
+```
+
+### Performance Tuning SQL Queries
+SQL Performance Tuning: SQL tuning is the process of improving SQL queries to accelerate servers performance. It's general purpose is to reduce the amount of time it takes a user to receive a result after issuing a query, and to reduce the amount of resources used to process a query.
+
+The theory behind query run time:
+A database is a piece of software that runs on a computer, and is subject to the same limitations as all software - it can only process as much information as its hardware is capable of handling. The way to make a query run faster is to reduce the number of calculations that the software (and therefore hardware) must perform.
+Let's address some of the high-level things that will affect the number of calculations need to make and therefore querys runtime:
+
+* Table size: If query hits one or more tables with millions of rows or more, it could affect performance.
+* Joins: If query joins two tables in a way that substantially increases the row count of the result set, query is likely to be slow.
+* Aggregations: Combining multiple rows to produce a result requires more computation than simply retrieving those rows.
+
+Query runtime is also dependent on some things that can't really control related to the database itself:
+
+* Other users running queries: The more queries running concurrently on a database, the more the database must process at a given time and the slower everything will run. It can be especially bad if others are running particularly resource-intensive queries that fulfill some of the above criteria.
+* Database software and optimization: This is something probably can't control, but if know the system is using, can work within its bounds to make queries more efficient.
+
+Reducing Table Size:
+```
+SELECT *
+  FROM benn.sample_event_table
+ WHERE event_date >= '2014-03-01'
+   AND event_date <  '2014-04-01'
+```
+
+```
+SELECT COUNT(*)
+  FROM benn.sample_event_table
+ LIMIT 100
+```
+
+Making Joins Less Complicated:
+```
+SELECT teams.conference AS conference,
+       players.school_name,
+       COUNT(1) AS players
+  FROM benn.college_football_players players
+  JOIN benn.college_football_teams teams
+    ON teams.school_name = players.school_name
+ GROUP BY 1,2
 ```
