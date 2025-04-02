@@ -763,3 +763,125 @@ SELECT * FROM Emp_Dept_Max WHERE Department_Id = 16;
 * Automatically generates unique numbers
 * Is used to create primary key value
 * Can be shared
+
+Creating a Table:
+```
+CREATE TABLE Sample (
+    Col1 NUMBER(3) PRIMARY KEY,
+    Col2 VARCHAR2(20)
+);
+```
+
+Creating a sequence:
+```
+CREATE SEQUENCE sample_col1_gen
+START WITH 100
+INCREMENT BY 1
+MAXVALUE 1000
+NOCYCLE
+CACHE 10; 
+```
+
+Describe User Sequence:
+```
+DESC user_sequence;
+SELECT MAX_VALUE, INCREMENT_BY FROM user_sequence WHERE sequence_name='sample_col1_gen';
+```
+
+Getting current value and next value of the sequence:
+```
+SELECT sample_col1_gen.currval, sample_col1_gen.nextval from dual;
+```
+
+```
+INSERT INTO Sample VALUES (sample_col1_gen.nextval, '&value');
+```
+
+### Creating Index
+
+* Is used to speed up the retrieval
+* Is used by Oracle Server
+* Should be created on the fields having no keys
+* Should be created when very less number of rows to be retrieved in a large table.
+
+Create Index:
+```
+CREATE INDEX Emp_FirstName_Idx
+ON Employees(First_Name);
+```
+
+### Creating Synonyms
+
+* Provide easy way to access the table owned by another user
+* Shortens lengthy table name
+
+Create synonym:
+```
+CREATE SYNONYM Emp
+FOR Employees;
+SELECT * FROM Emp;
+```
+
+### Creating User
+```
+CREATE USER anadi
+IDENTIFIED BY tutorials;
+```
+
+### Managing User Access
+
+Show User:
+```
+show user;
+```
+
+Connect as an user:
+```
+conn user_name;
+```
+
+Disconnect from user:
+```
+disc;
+```
+
+Grant access to an user:
+```
+GRANT CREATE session, create table, create view, create synonym
+to anadi;
+```
+
+Grant access to a table:
+```
+GRANT SELECT, INSERT, UPDATE, DELETE ON Department to anadi;
+```
+
+Create a synonym:
+```
+CREATE SYNONYM Dept FOR system.Departments;
+
+SELECT * FROM Dept;
+```
+
+Revoke access:
+```
+REVOKE create table FROM anadi;
+REVOKE DELETE on Departments FROM anadi;
+```
+
+### Managing Roles
+
+Create a role:
+```
+CREATE ROLE manager;
+```
+
+Grant Access to Role:
+```
+GRANT create table, create session, create view to manager;
+```
+
+Grant user to a specific role:
+```
+GRANT manager to anadi;
+```
