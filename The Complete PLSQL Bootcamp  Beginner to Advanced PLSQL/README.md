@@ -51,3 +51,15 @@ Logical Architecture:
 * Case Insensitivity
 * Optimizer
 * Enable Object Oriented Programming
+
+### The Sample (HR) Schema 
+* What is Schema?
+=> Schemas are the collection of objects for each user in Oracle Database. In Oracle Database, a schema is a collection of database objects that belong to a specific user. These objects can include tables, views, indexes, sequences, procedures, functions, packages, and other structures. Each user account in Oracle has its own schema, and the schema name is the same as the username.
+
+* A schema is a logical container for objects created by a user
+* It helps organize and manage database objects
+* Access to objects in a schema can be controlled through permissions.
+
+For example, if a user named HR creates a table called EMPLOYEES, the fully qualified name of the table would be HR.EMPLOYEES, indicating that the EMPLOYEES table belongs to the HR schema. 
+
+<img src="../images/6.png" height="auto" width="auto" />
