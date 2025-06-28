@@ -147,3 +147,130 @@ Open Command Terminal & run the below commands:
 ### Option 3 Using Oracle Live SQL
 
 1. Oracle Live SQL: https://livesql.oracle.com/landing/
+
+### Blocks
+
+- What are blocks?
+  -> In PL/SQL, a block is the basic unit of code. It is a group of related declarations and statements that are executed together. Every PL/SQL program is made up of one or more blocks.
+
+A PL/SQL block has three main sections:
+
+- Declaration Section (Optional): Where declare variables, constants, cursors, etc.
+- Execution Section (mandatory): Where write the executable statements (logic, SQL, etc).
+- Exception handling Sections (optional): Where handle errors or exceptions
+
+The general structure is:
+
+```
+DECLARE
+   -- Declarations (optional)
+BEGIN
+   -- Executable statements (mandatory)
+EXCEPTION
+   -- Exception handling (optional)
+END;
+```
+
+Three types of blocks:
+
+- Anonymous Blocks
+- Procedures
+- Functions
+
+### PL/SQL Outputs
+
+In PL/SQL, outputs refer to the results or information produced by executing a PL/SQL blocks. The most common ways to produce output in PL/SQL are:
+
+1. DBMS_OUTPUT.PUT_LINE:
+   This built-in procedure displays text output to the screen. It is mainly used for debugging or showing messages.
+
+```
+SET SERVEROUTPUT ON;
+
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('Hello, World!');
+END;
+```
+
+2. SELECT statements:
+   When used in a PL/SQL block, SELECT statements can fetch data into variables, but they do not directly display output unless combined with DBMS_OUTPUT
+
+3. OUT parameters:
+   Procedures and functions can return values to the caller using OUT or IN OUT parameters.
+
+4. RETURN statement:
+   Functions return a value using the RETURN statement
+
+5. EXCEPTIONS:
+   When an error occurs, PL/SQL can output error messages using exception handling and DBMS_OUTPUT
+
+### Nested Blocks:
+
+In PL/SQL, nested blocks are PL/SQL blocks placed inside other PL/SQL blocks. This allows to structure code with inner blocks that have their own declarations, logic and exception handling, separate from the outer block.
+
+- Inner (bested) blocks can access variables declared in the outer block, but not vice versa
+- Each block can have its own exception section
+- Useful for organizing code, limiting the scope of variables, and handling exceptions locally.
+
+```
+SET SERVEROUTPUT ON;
+DECLARE
+   outer_var NUMBER := 10;
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('Outer block: ' || outer_var);
+
+   DECLARE
+      inner_var NUMBER := 20;
+   BEGIN
+      DBMS_OUTPUT.PUT_LINE('Inner block: ' || inner_var);
+      DBMS_OUTPUT.PUT_LINE('Accessing outer_var from inner block: ' || outer_var);
+   END;
+
+   -- inner_var is not accessible here
+   -- DBMS_OUTPUT.PUT_LINE(inner_var); -- This would cause an error
+END;
+```
+
+### What are variables?
+
+In PL/SQL, variables are named storage locations that hold data values during the execution of a program & can assign, change and use their values in code.
+
+### Why do we need variables?
+
+- To temporarily store data for processing (such as numbers, text, dates, etc)
+- To hold results from queries or calculations
+- To make code flexible and reusable by allowing values to change during execution
+- To pass data between different parts of a program (such as between blocks, procedures, or functions)
+
+### PL/SQL Variable Types:
+
+1. Scalar Types: Store a single value
+   - NUMBER: For numeric values (integers, decimals)
+   - VARCHAR2, CHAR: For character strings
+   - DATE, TIMESTAMP: For date and time values
+   - BOOLEAN: For logical values (TRUE, FALSE, NULL)
+2. Composite Types: Store multiple values or a collection
+   - RECORD: A group of related data items (like a row)
+   - TABLE, VARRAY, NESTED TABLE: Collections of elements (arrays/lists)
+3. REFERENCE TYPES:
+   - CURSOR: Used to handle query result sets
+   - REF CURSOR: Pointer to a cursor
+4. LOB Types:
+   - BLOB, CLOB, NCLOB: For large binary or character data
+
+### Variable Naming Rules:
+
+- The name must begin with a letter
+- It can include letters, numbers, and the symbols \_, $, $
+- Maximum length is 30 characters
+- Names are not case-sensative (myVar and MYVAR are the same)
+- Cannot use reserved words like SELECT, BEGIN, etc
+- Avoid starting with PL/SQL reserved prefixes (like "SYS\_")
+
+### Naming Conventions
+
+- VARIABLE(v_variable_name): v_max_salary
+- CURSOR(cur_cursor_name): cur_employees
+- EXCEPTION(e_exception_name): e_invalid_salary
+- PROCEDURE(p_procedure_name): p_calculate_salary
+- BIND VARIABLE(b_bind_name): b_emp_id
