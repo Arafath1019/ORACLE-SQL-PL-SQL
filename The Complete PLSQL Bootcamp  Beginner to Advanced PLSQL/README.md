@@ -331,3 +331,198 @@ END;
 ```
 
 \*\*\* DATE, TIMESTAMP, TIMESTAMP WITH TIME ZONE & INTERVAL
+
+### USING %TYPE ATTRIBUTE
+
+IN PL/SQL, the %TYPE attribute is used to declare a variable with the same data types as a column in a table or as another variable. This ensures that variable always matches the column's or variable's data type, even if the table definition changes later.
+
+```
+DECLARE
+   V_TYPE employees.job_id%TYPE;
+   V_TYPE2 V_TYPE%TYPE;
+BEGIN
+   V_TYPE := 'IT PROG';
+   V_TYPE2 := 'SAM';
+END;
+```
+
+### Delimiters & Commenting in Code
+
+Delimiters:
+
+- A PL/SQL block starts with DECLARE, then BEGIN and ends with END.
+- Each statement inside the block ends with a semicolon
+- String literals are enclosed in single quotes ('example')
+- Parentheses () are used for grouping and function/procedure calls
+- Commas separate items in lists
+- - (Addition), - (Subtraction | Negation), \* (Multiplication), / (Division), = (Equality), @ (Remote Access), ; (Statement), <> (Inequality), != (Inequality), || (Concatenation), := (Assignment), -- (Single line comment), /\*\*/ (Multi line comment)
+
+### PL/SQL variable scope
+
+In PL/SQL, variable scope refers to where a variable can be accessed or used within code.
+
+- A variable declared in the outer block is accessible in all its inner blocks
+- A variable declared in an inner block is only accessible within that inner block - not in the outer block.
+- If a variable with the same name is declared in both an outer and an inner block, the block's variable takes precedence (local scope)
+
+This means:
+
+- Outer block variables have wider scope within the block and its sub blocks
+- Inner block variables have a local scope, limited to the block where they are declared.
+
+```
+SET SERVEROUTPUT ON;
+DECLARE
+   v_outer NUMBER := 100; -- Outer block variable
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('Outer block: v_outer = ' || v_outer);
+
+   DECLARE
+      v_inner NUMBER := 200; -- Inner block variable
+      v_outer NUMBER := 300; -- This shadows the outer v_outer
+   BEGIN
+      DBMS_OUTPUT.PUT_LINE('Inner block: v_inner = ' || v_inner);
+      DBMS_OUTPUT.PUT_LINE('Inner block: v_outer = ' || v_outer); -- Refers to inner v_outer
+   END;
+
+   -- v_inner is not accessible here
+   -- DBMS_OUTPUT.PUT_LINE(v_inner); -- This would cause an error
+
+   DBMS_OUTPUT.PUT_LINE('Outer block again: v_outer = ' || v_outer); -- Refers to outer v_outer
+END;
+```
+
+### Bind Variable
+
+A bind variable in PL/SQL is a variable that is declared and used outside the PL/SQL block, typically in tools like SQL\*Plus, SQL Developer or application code. Bind variable allow to pass values into and out of PL/SQL blocks, procedures, or SQL statement at runtime.
+
+- Bind variables are prefixed with a colon (:b_emp_id)
+- They are defined in the host environment, not inside the PL/SQL block.
+- They help improve performance by allowing SQL statements to be reused with different values, and they help prevent SQL injection.
+
+```
+VARIABLE b_emp_id NUMBER;
+
+BEGIN
+   :b_emp_id := 101;
+END;
+/
+
+SELECT first_name from employees WHERE employee_id = :b_emp_id;
+```
+
+### What are control structures and if statements?
+
+In PL/SQL, control structures are programming constructs that control the flow of execution in code. The main types are:
+
+1. Conditional control (IF statements): Used to execute code only if certain conditions are true
+2. Iterative control (Loops): Used to repeat a block of code multiple times (FOR, WHILE Loop)
+3. Sequential Control (GOTO, EXIT): Used to change the normal sequence of execution
+
+IF statements are a type of conditional control structure. They allow to execute certain statements only when a condition is true.
+
+```
+IF condition1 THEN
+   --- statements
+ELSIF condition2 THEN
+   --- statements
+ELSE
+   --- statements
+END IF;
+```
+
+```
+SET SERVEROUTPUT ON;
+
+DECLARE
+   v_salary NUMBER := 4000;
+BEGIN
+   IF v_salary > 5000 THEN
+      DBMS_OUTPUT.PUT_LINE('Salary is above 5000');
+   ELSIF v_salary = 5000 THEN
+      DBMS_OUTPUT.PUT_LINE('Salary is exact 5000');
+   ELSE
+      DBMS_OUTPUT.PUT_LINE('Salary is below 5000');
+   END IF;
+END;
+```
+
+### AND, OR, NOT Logical Operators
+
+In PL/SQL, AND, OR, and NOT are logical operators used in conditions (such as IF statements) to combine or reverse logical expressions.
+
+- AND: Returns true if both conditions are true.
+- OR: Returns true if at least one condition is true
+- NOT: Reverses the logical value
+
+```
+IF salary > 3000 AND department_id = 10 THEN
+   DBMS_OUTPUT.PUT_LINE('High salary in department 10');
+END IF;
+
+IF salary < 2000 OR department_id = 20 THEN
+   DBMS_OUTPUT.PUT_LINE('Low salary or in department 20');
+END IF;
+
+IF NOT (salary = 5000) THEN
+   DBMS_OUTPUT.PUT_LINE('Salary is not 5000');
+END IF;
+```
+
+### Case Expression
+
+In PL/SQL, CASE expressions are used to perform conditional logic, similar to IF-THEN-ELSE, but in a more compact form. They allow to return a value based on different conditions.
+
+There are two types of CASE expressions:
+
+1. Simple CASE expression:
+
+```
+CASE variable
+   WHEN value1 THEN result1
+   WHEN value2 THEN result2
+   ELSE default_result
+END
+```
+
+```
+DECLARE
+   grade CHAR := 'B';
+   result VARCHAR2(20);
+BEGIN
+   result := CASE grade
+      WHEN 'A' THEN 'Excellent'
+      WHEN 'B' THEN 'Good'
+      WHEN 'C' THEN 'Average'
+      ELSE 'Needs Improvement'
+   END;
+   DBMS_OUTPUT.PUT_LINE('Result: ' || result);
+END;
+```
+
+2. Searched CASE Expression:
+
+```
+CASE
+   WHEN condition1 THEN result1
+   WHEN condition2 THEN result2
+   ELSE default_result;
+END;
+```
+
+```
+SET SERVEROUTPUT ON;
+
+DECLARE
+   score NUMBER := 78;
+   grade VARCHAR2(20);
+BEGIN
+   grade := CASE
+      WHEN score >= 90 THEN 'A'
+      WHEN score >= 80 THEN 'B'
+      WHEN score >= 70 THEN 'C'
+      ELSE 'F'
+   END;
+   DBMS_OUTPUT.PUT_LINE('Grade: ' || grade);
+END;
+```
