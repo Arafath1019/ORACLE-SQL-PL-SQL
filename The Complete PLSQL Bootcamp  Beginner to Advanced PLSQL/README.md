@@ -598,3 +598,82 @@ FOR i IN REVERSE 5..1 LOOP
    DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
 END LOOP;
 ```
+
+### Nested Loops & Loop labeling
+
+In PL/SQL, nested loops are loops placed inside other loops. Can use them to perform repeated actions within each iteration of an outer loop. Loop labeling helps to identify and control specific loops, especially when using EXIT or CONTINUE statements to exit from or continue a particular loop.
+
+```
+<<outer_loop>>
+FOR i IN 1..3 LOOP
+   DBMS_OUTPUT.PUT_LINE('Outer loop: ' || i);
+
+   <<inner_loop>>
+   FOR j IN 1..2 LOOP
+      DBMS_OUTPUT.PUT_LINE('Inner loop: ' || j);
+
+      IF i = 2 AND j = 1 THEN
+         EXIT outer_loop;
+      END IF;
+   END LOOP inner_loop;
+END LOOP outer_loop;
+```
+
+### CONTINUE statement
+
+In PL/SQL, the CONTINUE statement is used inside loops to skip the remaining statements in the current iteration and move to the next iteration of the loop. Can also use CONTINUE WHEN condition; to skip to the next iteration only when a specific condition is true.
+
+```
+CONTINUE;
+--- or
+CONTINUE WHEN condition;
+```
+
+```
+DECLARE
+   i number;
+BEGIN
+   FOR i IN 1..5 LOOP
+      IF MOD(i, 2) = 0 THEN
+         CONTINUE;
+      END IF;
+      DBMS_OUTPUT.PUT_LINE('Odd number: ' || i);
+   END LOOP;
+END;
+```
+
+With loop labeling
+
+```
+<<my_loop>>
+FOR i IN 1..5 LOOP
+   CONTINUE my_loop WHEN i = 3;
+   DBMS_OUTPUT.PUT_LINE('i= ' || i);
+END LOOP;
+```
+
+### GOTO statement
+
+In PL/SQL, the GOTO statement allows to transfer control unconditionally to a labeled statement within the same block; It is rarely used in modern code because it can make programs harder to read and maintain, but it can be useful in certain situations.
+
+```
+GOTO label_name
+----
+<<label_name>>
+   -- statements
+```
+
+```
+DECLARE
+   v_num NUMBER := 1;
+BEGIN
+   IF v_num = 1 THEN
+      GOTO skip_section;
+   END IF;
+
+   DBMS_OUTPUT.PUT_LINE(' This will be skipped');
+
+   <<skipped_section>>
+   DBMS_OUTPUT.PUT_LINE('GOTO jumped to this line');
+END;
+```
