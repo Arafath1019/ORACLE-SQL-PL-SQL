@@ -526,3 +526,75 @@ BEGIN
    DBMS_OUTPUT.PUT_LINE('Grade: ' || grade);
 END;
 ```
+
+### What are loops - basic loops
+
+In PL/SQL, loops are control structures that allow to repeatedly execute a block of code multiple times.
+
+A basic loop (also called a simple or unconditional loop) repeats its statements until explicitly exit the loop using an EXIT or EXIT WHEN statement.
+
+```
+LOOP
+   -- statements
+   EXIT WHEN condition; -- or just EXIT;
+END LOOP;
+```
+
+```
+DECLARE
+   counter NUMBER := 1;
+BEGIN
+   LOOP
+      DBMS_OUTPUT.PUT_LINE('Counter: ' || counter);
+      counter := counter + 1;
+      EXIT WHEN counter > 5;
+   END LOOP;
+END;
+```
+
+### WHILE Loops
+
+In PL/SQL, a WHILE loop repeatedly executes a block of code as long as a specified condition is true. The condition is checked before each iteration.
+
+```
+WHILE condition LOOP
+   -- statements
+END LOOP;
+```
+
+```
+DECLARE
+   counter NUMBER := 1;
+BEGIN
+   WHILE counter <= 5 LOOP
+      DBMS_OUTPUT.PUT_LINE('Counter: ' || counter);
+      counter := counter + 1;
+   END LOOP;
+END;
+```
+
+### FOR Loops
+
+In PL/SQL, a FOR loop is used to execute a block of code a specific number of times. The loop variable automatically takes on each integer value in a specified range.
+
+```
+FOR counter IN [REVERSE] lower_bound..upper_bound LOOP
+   -- statements
+END LOOP;
+```
+
+```
+DECLARE
+   i number;
+BEGIN
+   FOR i IN 1..5 LOOP
+      DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
+   END LOOP;
+END;
+```
+
+```
+FOR i IN REVERSE 5..1 LOOP
+   DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
+END LOOP;
+```
