@@ -677,3 +677,154 @@ BEGIN
    DBMS_OUTPUT.PUT_LINE('GOTO jumped to this line');
 END;
 ```
+
+### Operating With Selected Queries
+
+- Why to use SQL in PL/SQL?
+
+  - Use SQL in PL/SQL to combine the power of SQL for data manipulation (such as SELECT, INSERT, UPDATE, DELETE) with the procedural capabilities of PL/SQL (such as variables, loops, conditions, and error handling). This allows to:
+  - Retrieve, modify and manage data in the database directly from PL/SQL code
+  - Automate complex business logic that involves multiple SQL operations.
+  - Improve performance by reducing the number of calls between application and database.
+  - Handle exceptions and control flow around SQL statements.
+
+- There are some issues?
+
+  - Can't use DDL commands directly.
+  - A block does not mean a transaction
+
+- How to use SQL in PL/SQL/
+
+```
+SELECT columns|expressions
+INTO variables|records
+FROM table|tables
+[WHERE condition]
+```
+
+```
+SELECT column1, column2
+INTO variable1, variable2
+FROM table_name
+WHERE condition;
+```
+
+```
+DECLARE
+   v_name employees.first_name%TYPE;
+   v_id employees.employee_id%TYPE = 101;
+BEGIN
+   SELECT first_name
+   INTO v_name
+   FROM employees
+   WHERE employee_id = v_id;
+
+   DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+```
+
+### Naming Convention & Ambiguities
+
+- Naming Convention:
+  - Use clear, descriptive names that indicate the purpose of the variable, cursor, exception, etc.
+  - Prefixes are often used to indicate type or scope:
+    - v\_ for variable (v_salary)
+    - cur\_ for cursors (cur_employees)
+    - e\_ for exceptions (e_not_found)
+    - p\_ for procedure parameters (p_emp_id)
+    - b\_ for bind variables (b_dept_id)
+  - Use underscores to separate words in multi-word names (total_salary, start_date)
+  - Use Uppercase for constants (MAX_LIMIT)
+  - Avoid using reserved words or names that too generic (value, number)
+- Ambiguities"
+  - If a variable and a column have the same name in a SQL statement, Oracle treats the name as a column by default. To avoid ambiguity, use table aliases or different names.
+  - In nested block, if a variable is declared with the same name as an outer block variable, the inner variable "shadows" the outer one within its scope.
+  - Always use meaningful and distinct names to prevent confusion and accidental errors in code.
+
+### DML Operations in PL/SQL
+
+DML (Data Manipulation Language) operations are used to manipulate data in database tables. In PL/SQL, can use DML statements directly inside PL/SQL blocks to insert, update, delete or select data.
+
+Common DML operations:
+
+- INSERT: Add new rows to a table
+- UPDATE: Modify existing rows in a table
+- DELETE: Remove rows from a table
+- SELECT ... INTO: Retrieve data from a table into PL/SQL variables
+
+-- INSERT example
+
+```
+BEGIN
+   INSERT INTO employees (employee_id, first_name, last_name) VALUE (999, 'John', 'Doe');
+END;
+```
+
+-- UPDATE example
+
+```
+BEGIN
+   UPDATE employees
+   SET salary = salary * 1.1
+   WHERE department_id = 10;
+END;
+```
+
+-- DELETE example
+
+```
+BEGIN
+   DELETE FROM employees
+   WHERE employee_id = 999;
+END;
+```
+
+-- SELECT INTO example
+
+```
+DECLARE
+   v_salary employee.salary%TYPE;
+BEGIN
+   SELECT salary INTO v_salary
+   FROM employees
+   WHERE employee_id = 100;
+   DBMS_OUTPUT.PUT_LINE('Salary: ' || v_salary);
+END;
+```
+
+- DML statements in PL/SQL blocks are part of the current transaction. Can use COMMIT to save changes or ROLLBACK to undo them.
+- Always handle exceptions for DML operations to manage errors gracefully.
+
+### Sequences in PL/SQL
+
+A sequence in Oracle is a database object that generates a sequence of unique numeric values, often used for auto-incrementing primary keys.. In PL/SQL, can use sequences to generate unique numbers for inserting into tables.
+
+- How to use a sequence in PL/SQL:
+  - Use sequence_name.NEXTVAL to get the next value in the sequence
+  - Use sequence_name.CURRVAL to get the current value (after at least one NEXTVAL call in the session)
+
+-- Assuming a sequence named emp_seq exists
+
+```
+DECLARE
+   v_new_id NUMBER;
+BEGIN
+   v_new_id := emp_seq.NEXTVAL;
+   INSERT INTO employees (employee_id, first_name, last_name)
+   VALUES (v_new_id, 'John', 'Doe');
+END;
+```
+
+- Sequences are independent of tables and can be used by multiple users.
+- Useful for generating unique keys in multi-user environments.
+- Can't use NEXTVAL or CURRVAL in the VALUES clause of a SELECT statement without inserting or updating data.
+
+-- Creating a sequence
+
+```
+CREATE SEQUENCE emp_seq
+   START WITH 1
+   INCREMENT BY 1
+   NOCACHE
+   NOCYCLE;
+```
