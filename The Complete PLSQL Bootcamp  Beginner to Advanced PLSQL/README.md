@@ -828,3 +828,338 @@ CREATE SEQUENCE emp_seq
    NOCACHE
    NOCYCLE;
 ```
+
+### Simple Data Types Vs Composite Data Types
+
+Simple Data Types (Scalar Types):
+
+- Hold a single value
+- Examples:
+  - NUMBER (v_num NUMBER := 10)
+  - VARCHAR2 (v_name VARCHAR2 := 'John')
+  - CHAR
+  - DATE
+  - BOOLEAN
+- Used for basic data storage and manipulation
+
+Composite Data Types:
+
+- Can hold multiple values or a collection of values
+- Examples:
+  - RECORD: A group of related data items, possibly of different types (like a row in a table)
+  ```
+  TYPE emp_rec IS RECORD (id NUMBER, name VARCHAR2(20));
+  v_emp emp_rec;
+  ```
+  - TABLE, VARRAY, NESTED TABLE: Collections (array/lists) of elements.
+  ```
+  TYPE num_table IS TABLE OF NUMBER;
+  v_nums num_table := num_table(1,2,3);
+  ```
+  - Used for handling complex data structures and sets of data
+
+### PL/SQL Records
+
+- What is a record?
+  A record in PL/SQL is a composite data type that allows to group related data items of different types into a single unit, similar to a row in a table. Each field in a record can have a different data type, and can access each field individually.
+
+Why use records?
+
+- To handle entire rows of data easily.
+- To group related variables together for better organization and readability.
+
+How to define and use a record:
+
+1. Define a record type:
+
+```
+TYPE emp_rec IS RECORD (
+   emp_id NUMBER,
+   emp_name VARCHAR2(50),
+   salary NUMBER
+);
+```
+
+2. Declare a variable of that record type:
+
+```
+v_employee emp_rec;
+```
+
+3. Assign values and access fields:
+
+```
+v_employees.emp_id := 101;
+v_employees.emp_name := 'John Doe';
+v_employees.salary := 5000;
+
+DBMS_OUTPUT.PUT_LINE('Name: ' || v_employees.emp_name);
+```
+
+Example Using a table row:
+
+```
+DECLARE
+   TYPE emp_rec IS RECORD(
+      emp_id employees.employee_id%TYPE,
+      emp_name employees.first_name%TYPE,
+      salary employees.salary%TYPE
+   );
+
+   v_emp emp_rec;
+BEGIN
+   SELECT employee_id, first_name, salary
+   INTO v_emp
+   FROM employees
+   WHERE employee_id = 100;
+END;
+```
+
+### DML with Records
+
+Can use Records to perform DML operations (SELECT, INSERT, UPDATE, DELETE) more efficiently, especially when dealing with entire rows of data.
+
+1. SELECT INTO a Record
+   Fetch a row from a table directly into a record:
+
+```
+DECLARE
+   TYPE emp_rec IS RECORD (
+      emp_id employees.employee_id%TYPE,
+      emp_name employees.first_name%TYPE,
+      salary employees.salary%TYPE
+   );
+   v_emp emp_rec;
+BEGIN
+   SELECT employee_id, first_name, salary
+   INTO v_emp
+   FROM employees
+   WHERE employee_id = 100;
+
+   DBMS_OUTPUT.PUT_LINE('Name: ' || v_emp.first_name || ', Salary: ' || v_emp.salary);
+END;
+```
+
+2. INSERT Using a Record
+
+```
+DECLARE
+   TYPE emp_rec IS RECORD (
+      emp_id employees.employee_id%TYPE,
+      emp_name employees.first_name%TYPE,
+      salary employees.salary%TYPE
+   );
+   v_emp emp_rec;
+BEGIN
+   v_emp.emp_id := 200;
+   v_emp.emp_name := 'Jane';
+   v_emp.salary := 6000;
+
+   INSERT INTO employees (emp_id, emp_name, salary)
+   VALUES (v_emp.emp_id, v_emp.emp_name, v_emp.salary);
+END;
+```
+
+3. Update Using a Record
+
+```
+BEGIN
+   UPDATE employees
+   SET salary = v_emp.salary
+   WHERE employee_id = v_emp.emp_id;
+END;
+```
+
+4. DELETE Using a Record
+
+```
+BEGIN
+   DELETE FROM employees
+   WHERE employee_id = v_emp.emp_id;
+END;
+```
+
+### What are COLLECTIONS?
+
+In PL/SQL, collections are composite data types that allow to store and manipulate multiple values (elements) as a single unit, similar to arrays or lists in other programming languages.
+Collections are useful for handling sets of data in memory.
+
+There are three main types of collections in PL/SQL:
+
+1. Associative Arrays (Index-by Tables):
+   - Key-value pairs, where the key can be an integer or string
+   - Size is dynamic and can be sparse
+   ```
+   TYPE num_table IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+   v_nums num_table;
+   v_nums(1) := 100;
+   v_num2(2) := 200;
+   ```
+2. Nested Tables:
+   - Like arrays, but can be stored in database columns and can be sparse
+   - Can be extended dynamically
+   ```
+   TYPE num_table IS TABLE OF NUMBER;
+   v_nums num_table := num_table(10,20,30);
+   ```
+3. VARRAYs(Variable-size Arrays):
+   - Arrays with a fixed maximum size.
+   2. Elements are always stored in order and densely packed
+   ```
+   TYPE num_varray IS VARRAY(5) OF NUMBER;
+   v_nums num_varray := num_varray(1,2,3);
+   ```
+
+### VARRAYs
+
+VARRAYs (Variable-size Arrays) in PL/SQL.
+
+A VARRAY (variable-size array) is a type of collection in PL/SQL that can store a fixed number of elements of the same data type. VARRAYs are always dense (no gaps between elements) and maintain the order of insertion.
+
+- Fixed maximum size defined at creation
+- Elements are always stored in order and densely packed
+- Can be used as PL/SQL variables, parameters or columns in tables
+
+```
+DECLARE
+   TYPE num_varray IS VARRAY(5) OF NUMBER;
+   v_nums num_varray := num_varray(10,20,30);
+BEGIN
+   FOR i IN 1..v_nums.count() LOOP
+      DBMS_OUTPUT.PUT_LINE('Element: ' || i || ': ' || v_nums(i));
+   END LOOP;
+
+   FOR i IN v_nums.first()..v_nums.last() LOOP
+      DBMS_OUTPUT.PUT_LINE(v_nums(i));
+   END LOOP;
+
+   DBMS_OUTPUT.PUT_LINE(v_nums.limit());
+END;
+```
+
+- Use VARRAYs when know the maximum number of elements in advance.
+- Suitable for small, ordered collections where the size does not change frequently.
+- Drop a type: `DROP TYPE type_name`
+
+### Nested Tables
+
+A nested table is a type of collection in PL/SQL that can store an arbitrary number of elements, similar to a one-dimensional array, but with more flexibility. Nested tables can be sparse and can be stored in database columns.
+
+- Can grow dynamically
+- Can be sparse
+- Can be used as PL/SQL variables, parameters, or columns in tables.
+
+```
+DECLARE
+   TYPE num_table IS TABLE OF NUMBER;
+   v_nums num_table := num_table(10,20,30,40);
+BEGIN
+   -- Accessing Elements
+   FOR i IN 1..v_nums.count() LOOP
+      DBMS_OUTPUT.PUT_LINE('Element: ' || i || ': ' || v_nums(i));
+   END LOOP;
+
+   -- Deleting an element
+   v_nums.DELETE(2);
+END;
+```
+
+- Use nested tables when need a collection that can grow or shrink dynamically
+- Suitable for storing and manipulating sets of data in memory or as columns in database tables.
+
+### Associative Arrays (Index-by Tables)
+
+An associative array is a collection type in PL/SQL that stores key-value pairs, where the key can be an integer or a string. Associative arrays are dynamic and can be sparse, making them very flexible for in-memory lookups and temporary storage.
+
+- Keys can be integers or strings
+- Size is dynamic
+- Can be sparse
+- Only exist in memory
+
+```
+DECLARE
+   TYPE num_table IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+   v_nums num_table;
+BEGIN
+   v_nums(1) := 100;
+   v_nums(2) := 200;
+   v_nums(3) := 300;
+
+   FOR i IN 1..10 LOOP
+      IF v_nums.EXISTS(i) THEN
+         DBMS_OUTPUT.PUT_LINE(v_nums(i));
+   END LOOP;
+END;
+```
+
+```
+DECLARE
+   TYPE name_table IS TABLE OF NUMBER INDEX BY VARCHAR2(20);
+   v_ages name_table;
+BEGIN
+   v_ages('Alice') := 30;
+   v_ages('Bob') := 25;
+
+   DBMS_OUTPUT.PUT_LINE('Alice age: ' || v_ages('Alice'));
+   DBMS_OUTPUT.PUT_LINE('Bob age: ' || v_ages('Bob'));
+END;
+```
+
+- Use associative arrays for fast, flexible in-memory lookups.
+- Ideal for temporary data storage and manipulation within PL/SQL blocks and procedures.
+
+### Storing Collections in Tables
+
+In Oracle, can store collections (specially nested tables and varrays) as columns in database tables. This allows to associate a set of values with a single row, similar to storing an arrays or list inside a table cell.
+
+Steps to store collections in Tables:
+
+1. Define a Collection Type at the Schema Level:
+
+```
+CREATE OR REPLACE TYPE num_array IS VARRAY(5) OF NUMBER;
+CREATE OR REPLACE TYPE num_table IS TABLE OF NUMBER;
+```
+
+2. Create a Table with a collection column:
+
+```
+CREATE TABLE dept_projects(
+   dept_id NUMBER,
+   project_ids num_varray
+);
+CREATE TABLE student_marks(
+   student_id NUMBER,
+   marks num_table
+);
+```
+
+3. Insert Data into the Table:
+
+```
+INSERT INTO dept_projects VALUES(10, num_array(101,102,103));
+INSERT INTO student_marks VALUES(1, num_table(80,50,90));
+```
+
+4. Select Data from the Table:
+
+```
+SELECT * FROM dept_projects;
+SELECT * FROM student_marks;
+```
+
+5. Access Collection Elements:
+
+```
+DECLARE
+   v_marks num_table;
+BEGIN
+   SELECT marks INTO v_marks FROM student_marks WHERE student_id = 1;
+   FOR i IN 1..v_marks.COUNT LOOP
+      DBMS_OUTPUT.PUT_LINE('Mark: ' || v_marks(i));
+   END LOOP;
+END;
+```
+
+- Associate arrays can't be stored in table columns, only nested tables and varrays can
+- Collections stored in tables are useful for modeling one-to-many relationship within a single row.
