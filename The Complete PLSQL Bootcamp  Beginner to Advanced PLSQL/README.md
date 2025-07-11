@@ -1163,3 +1163,128 @@ END;
 
 - Associate arrays can't be stored in table columns, only nested tables and varrays can
 - Collections stored in tables are useful for modeling one-to-many relationship within a single row.
+
+### What are cursors & cursor types?
+
+Cursors in PL/SQL are pointers to the context area in memory where Oracle processes SQL statements. They allow to fetch and process query results row by row.
+
+Why use cursors?
+
+- To handle query results that return multiple rows.
+- To process each row individually in PL/SQL code.
+
+Types of Cursors:
+
+1. Implicit Cursors
+
+   - Automatically created by Oracle for single row queries (SELECT INTO, INSERT, UPDATE, DELETE)
+   - No need to declare them explicitly
+   - Access information using SQL% attributes (SQL%ROWCOUNT, SQL%FOUND)
+
+   ```
+   BEGIN
+      UPDATE employees
+      SET salary = salary * 1.1
+      WHERE department_id = 10;
+
+      IF SQL%ROWCOUNT > 0 THEN
+         DBMS_OUTPUT.PUT_LINE('Rows updated: ' || SQL%ROWCOUNT);
+      END IF;
+   END;
+   ```
+
+2. Explicit Cursors
+   - Declared and controlled by the programmer for queries that return multiple rows.
+   - Must declare, open, fetch and close the cursor
+   ```
+   DECLARE
+      CURSOR emp_cur IS
+      SELECT first_name, salary
+      FROM employees
+      WHERE department_id = 10;
+      v_name employees.first_name%TYPE;
+      v_salary employees.salary%TYPE;
+   BEGIN
+      OPEN emp_cur;
+      LOOP
+         FETCH emp_cur INTO v_name, v_salary;
+         EXIT WHEN emp_cur%NOTFOUND;
+         DBMS_OUTPUT.PUT_LINE('Name: ' || v_name || ', Salary: ' || v_salary);
+      END LOOP;
+      CLOSE emp_cur;
+   END;
+   ```
+
+### Collections vs Cursor
+
+Collections and cursors are both used to handle multiple rows of data in PL/SQL, but they serve different purposes and have different characteristics.
+
+Collections:
+
+- In-memory data structures (like arrays or lists) that can store multiple values (elements) of the same type or records.
+- Associative arrays, nested tables, VARRAYs
+- Store and manipulate sets of data in memory, useful for bulk processing, passing sets of values to procedures/functions, and temporary storage.
+- Random access to elements by index or key.
+- Exist only in PL/SQL memory, not directly tied to a SQL query result set.
+
+```
+TYPE num_table IS TABLE OF NUMBER;
+v_nums num_table := num_table(10,20,30);
+DBMS_OUTPUT.PUT_LINE(v_nums(1));
+```
+
+Cursors:
+
+- Pointers to the context area in memory where Oracle processes SQL statements, used to fetch query results row by row.
+- Implicit cursors (handled automatically by Oracle), explicit cursors (declared and controlled by the programmer)
+- Process query results that return multiple rows, especially when need to handle each row individually.
+- Sequential access - fetch one row at a time.
+- Tied to the result set of a SQL query, exist only while the query is being processed.
+
+```
+DECLARE
+   CURSOR emp_cur IS SELECT first_name FROM employees;
+   v_name employees.first_name%TYPE;
+BEGIN
+   OPEN emp_cur;
+   LOOP
+      FETCH emp_cur INTO v_name;
+      EXIT WHEN emp_cur%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(v_name);
+   END LOOP;
+   CLOSE emp_cur;
+END;
+```
+
+### Using Explicit Cursors
+
+To use explicit cursors in PL/SQL, must declare the cursor, open it, fetch rows from it and then close it. This is useful when need to process multiple rows returned by a query, one row at a time.
+
+Steps for using explicit cursors:
+
+1. Declare the cursor with a SELECT statement
+2. Open the cursor to execute the query
+3. Fetch rows from the cursor into variables
+4. Process each row as needed
+5. Close the cursor when done
+
+```
+DECLARE
+   CURSOR emp_cur IS
+   SELECT first_name, salary
+   FROM employees
+   WHERE department_id = 10;
+   v_name employees.first_name%TYPE;
+   v_salary employees.salary%TYPE;
+BEGIN
+   OPEN emp_cur;
+   LOOP
+      FETCH emp_cur INTO v_name, v_salary;
+      EXIT WHEN emp_cur%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE('Name: ' || v_name || ', Salary: ' || v_salary);
+   END LOOP;
+   CLOSE emp_cur;
+END;
+```
+
+### Cursors with record
