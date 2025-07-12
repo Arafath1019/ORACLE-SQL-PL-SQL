@@ -1288,3 +1288,71 @@ END;
 ```
 
 ### Cursors with record
+
+```
+DECLARE
+   TYPE r_emp IS RECORD (v_first_name employees.first_name%TYPE, v_last_name employees.last_name%TYPE);
+
+   v_emp r_emp;
+   CURSOR c_emps IS SELECT first_name, last_name FROM employees;
+BEGIN
+   OPEN c_emps;
+   LOOP
+      FETCH c_emps INTO v_emp;
+      EXIT WHEN c_emps%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(v_emp.first_name || ' ' || v_emp.last_name);
+   CLOSE LOOP;
+   CLOSE c_emps;
+END;
+```
+
+```
+DECLARE
+   v_emp employees%ROWTYPE;
+   CURSOR c_emps IS SELECT first_name, last_name FROM employees;
+BEGIN
+   OPEN c_emps;
+   FETCH c_emps INTO v_emp.first_name, v_emp.last_name;
+   DBMS_OUTPUT.PUT_LINE(v_emp.first_name || ' ' || v_emp.last_name);
+   CLOSE c_emps;
+END;
+```
+
+### Looping with Cursors
+
+```
+DECLARE
+   CURSOR c_emps IS SELECT * FROM employees WHERE department_id=30;
+   v_emps c_emps;
+BEGIN
+   OPEN c_emps;
+   LOOP
+      FETCH c_emps into v_emps;
+      EXIT WHEN c_emps%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(v_emps.employee_id || ': ' || v_emps.first_name || ' ' || v_emps.last_name);
+   END LOOP;
+   CLOSE c_emps;
+END;
+```
+
+```
+DECLARE
+   CURSOR c_emps IS SELECT * FROM employees WHERE department_id=30;
+   v_emps c_emps;
+BEGIN
+   OPEN c_emps;
+   WHILE c_emps%NOTFOUND LOOP
+      FETCH c_emps into v_emps;
+      DBMS_OUTPUT.PUT_LINE(v_emps.employee_id || ': ' || v_emps.first_name || ' ' || v_emps.last_name);
+   END LOOP;
+   CLOSE c_emps;
+END;
+```
+
+```
+BEGIN
+    FOR i IN (SELECT * FROM HR.EMPLOYEES WHERE DEPARTMENT_ID=30) LOOP
+        DBMS_OUTPUT.PUT_LINE(i.EMPLOYEE_ID || ': ' || i.FIRST_NAME);
+    END LOOP;
+END;
+```
