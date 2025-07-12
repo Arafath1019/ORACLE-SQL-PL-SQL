@@ -1356,3 +1356,40 @@ BEGIN
     END LOOP;
 END;
 ```
+
+### PL/SQL Cursors with Parameters
+
+In PL/SQL, a cursor with parameters is a named SQL area that can define to accept input values (parameters) when it is opened. This allows the cursor to be reused with different inputs each time it is opened, making code more flexible and efficient.
+
+- To filter or fetch rows dynamically based on input values.
+- To avoid hardcoding values inside the cursor
+- To make reusable and cleaner code.
+
+```
+-- Syntax
+CURSOR cursor_name (parameter_name datatype, ...) IS SELECT_statement_with_parameters;
+```
+
+Example: Cursor with parameters
+
+```
+DECLARE
+   CURSOR emp_cursor(p_dept VARCHAR2, p_min_salary NUMBER) IS SELECT emp_id, emp_name, salary
+   FROM employees
+   WHERE department = p_dept
+   AND salary >= p_min_salary;
+
+   v_id employees.emp_id%TYPE;
+   v_name employees.emp_name%TYPE;
+   v_salary employee_salary%TYPE;
+BEGIN
+   OPEN emp_cursor('IT', 30000);
+   LOOP
+      FETCH emp_cursor INTO v_id, v_name, v_salary;
+      EXIT WHEN emp_cursor%NOTFOUND;
+
+      DBMS_OUTPUT.PUT_LINE('Id: ' || v_id || ', Name: ' || v_name);
+   END LOOP;
+   CLOSE emp_cursor;
+END;
+```
