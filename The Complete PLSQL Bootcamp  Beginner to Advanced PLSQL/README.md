@@ -1393,3 +1393,115 @@ BEGIN
    CLOSE emp_cursor;
 END;
 ```
+
+### PL/SQL Cursor Attributes
+
+Cursor attributes provide information about the execution of SQL statements and the state of cursors. They are useful for checking the status of DML operations and cursor processing.
+
+There are four cursor attributes:
+
+1. %FOUND - Returns true if the last fetch returned a row or if an INSERT/UPDATE/DELETE affected at least one row
+2. %NOTFOUND - Returns true if the last fetch didn't return a row, or if an INSERT/UPDATE/DELETE didn't affect any rows.
+3. %ROWCOUNT - Returns the number of rows fetched so far, or the number of rows affected by an INSERT/UPDATE/DELETE
+4. %ISOPEN - Returns true if the cursor is open, otherwise false (only for explicit cursors)
+
+%FOUND & %NOTFOUND Example:
+
+```
+DECLARE
+   CURSOR emp_cur IS
+      SELECT first_name, salary FROM employees
+      WHERE department_id = 10;
+   v_name employees.first_name%TYPE;
+   v_salary employees.salary%TYPE;
+BEGIN
+   OPEN emp_cur;
+   FETCH emp_cur INTO v_name, v_salary;
+
+   IF emp_cur%FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('Found Employee');
+   ELSE
+      DBMS_OUTPUT.PUT_LINE('No Employees Found');
+   END IF;
+
+   CLOSE emp_cur;
+END;
+```
+
+%ROWCOUNT Example:
+
+```
+DECLARE
+   CURSOR emp_cur IS
+      SELECT * FROM employees
+      WHERE department_id = 10;
+   v_emp employees%ROWTYPE;
+BEGIN
+   OPEN emp_cur;
+   LOOP
+      FETCH emp_cur INTO v_emp;
+      EXIT WHEN emp_cur%NOTFOUND;
+   END LOOP;
+
+   DBMS_OUTPUT.PUT_LINE(' Total employees found: ' || emp_cur%ROWCOUNT);
+   CLOSE emp_cur;
+END;
+```
+
+%ISOPEN Example:
+
+```
+DECLARE
+   CURSOR emp_cur IS
+   SELECT first_name FROM employees
+   FROM employees
+   WHERE department_id = 10;
+   v_name employees.first_name%TYPE;
+BEGIN
+   IF NOT emp_cur%ISOPEN THEN
+      OPEN emp_cur;
+   END IF;
+
+   FETCH emp_cur INTO v_name;
+
+   IF emp_cur%ISOPEN THEN
+      CLOSE emp_cur;
+   END IF;
+END;
+```
+
+### FOR UPDATE Clause
+
+The FOR UPDATE claus eis used with cursors to lock rows for editing while they are being processed. This prevents other sessions from modifying the same rows until transaction is complete.
+
+```
+CURSOR cursor_name IS
+   SELECT column1, column2
+   FROM table_name
+   WHERE condition
+   FOR UPDATE [Of column1, column2] [nowait | Wait n]
+```
+
+```
+DECLARE
+   CURSOR emp_cur IS
+      SELECT employee_id, salary
+      FROM employees
+      WHERE department_id=10
+      FOR UPDATE Of salary NOWAIT;
+   v_emp_id employees.employee_id%TYPE;
+   v_salary employees.salary%TYPE;
+BEGIN
+   OPEN emp_cur;
+   LOOP
+      FETCH emp_cur INTO v_emp_id, v_salary;
+      EXIT WHEN emp_cur%NOTFOUND;
+
+      UPDATE employees
+      SET salary = salary * 1.1
+      WHERE CURRENT Of emp_cur;
+   END LOOP;
+   CLOSE emp_cur;
+   COMMIT;
+END;
+```
