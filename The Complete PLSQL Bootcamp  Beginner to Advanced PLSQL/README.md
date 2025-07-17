@@ -1505,3 +1505,112 @@ BEGIN
    COMMIT;
 END;
 ```
+
+### "WHERE CURRENT OF" Clause
+
+The "WHERE CURRENT OF" clause in PL/SQL is used with UPDATE and DELETE statements to modify or remove the current row being processed by a cursor. This ensures that operating on exactly the row that was just fetched by the cursor.
+
+Syntax and Usages:
+
+```
+UPDATE table_name
+SET column = value
+WHERE CURRENT OF cursor_name;
+
+or
+
+DELETE FROM table_name
+WHERE CURRENT OF cursor_name;
+```
+
+Example:
+
+```
+DECLARE
+   CURSOR emp_cur IS
+   SELECTED employee_id, salary
+   FROM employees
+   WHERE department_id = 10
+   FOR UPDATE;
+
+   v_emp_id employees.epmloyee_id%TYPE;
+   v_salary employees.salary%TYPE;
+BEGIN
+   OPEN emp_cur;
+
+   LOOP
+      FETCH emp_cur INTO v_emp_id, v_salary;
+
+      EXIT WHEN emp_cur%NOTFOUND;
+
+      IF v_salay < 5000 THEN
+         UPDATE employees
+         SET salary = salary * 1.1
+         WHERE CURRENT OF emp_cur;
+      END IF;
+   END LOOP
+   CLOSE emp_cur;
+END;
+```
+
+- The cursor must be declared with FOR UPDATE clause
+- Provides a safe way to update/delete the exact row being processed
+- Prevents accidental updates of wrong rows
+- More efficient than using a WHERE clause with column values
+
+### Reference Cursor
+
+A reference cursor (REF CURSOR) is a cursor variable that can be associated with different queries at runtime. It provides more flexibility than static cursors because the query can be assigned dynamically.
+
+Types of REF CURSORs:
+
+1. Strong(Typed) REF CURSOR:
+   Declare a strong REF CURSOR type
+
+```
+TYPE emp_cur_type IS REF CURSOR RETURN employees%ROWTYPE;
+```
+
+2. Weak(Untyped) REF CURSOR:
+   Declare a weak REF CURSOR type
+
+```
+TYPE generic_cur_type IS REF CURSOR;
+```
+
+Example of using REF CURSOR:
+
+```
+DECLARE
+   -- Define REF CURSOR type
+   TYPE emp_cur_type IS REF CURSOR;
+
+   -- Declare cursor variable
+   v_emp_cur emp_cur_type;
+
+   -- Variables to store fetched data
+   v_emp_id employees.employee_id%TYPE;
+   v_emp_name employees.first_name%TYPE;
+BEGIN
+   -- Open REF CURSOR with a query
+   OPEN v_emp_cur FOR
+      SELECT employee_id, first_name
+      FROM employees
+      WHERE department_id = 10;
+
+   -- Fetch and process rows
+   LOOP
+      FETCH v_emp_cur INTO v_emp_id, v_emp_name;
+
+      EXIT WHEN v_emp_cur%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(v_emp_id || ': ' || v_emp_name);
+   END LOOP;
+
+   CLOSE v_emp_cur;
+END;
+```
+
+- Can be passes as parameters to procedures/functions
+- Can be used with dynamic SQL
+- More flexible than static cursors
+- Can be returned from functions
