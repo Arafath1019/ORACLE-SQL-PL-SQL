@@ -1614,3 +1614,224 @@ END;
 - Can be used with dynamic SQL
 - More flexible than static cursors
 - Can be returned from functions
+
+### What are the EXCEPTIONS?
+
+Exceptions in PL/SQL are error conditions that can occur during program execution. They help handle runtime errors gracefully and maintain program reliability.
+
+Types of Exceptions:
+
+1. Predefined Exceptions
+
+- Built-in exceptions automatically raised by Oracle
+- Example: NO_DATA_FOUND, TOO_MANY_ROWS, ZERO_DIVIDE
+
+```
+DECLARE
+   v_name employees.first_name%TYPE;
+BEGIN
+   SELECT first_name INTO v_name
+   FROM employees
+   WHERE employee_id = 999999;
+EXCEPTION
+   WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('Employee Not Found!');
+END;
+```
+
+2. User-Defined Exceptions:
+
+- Custom exceptions defined by the programmer
+
+```
+DECLARE
+   e_salary_too_high EXCEPTION;
+   v_salary NUMBER := 50000;
+BEGIN
+   IF v_salary > 40000 THEN
+      RAISE e_salary_too_high;
+   END IF;
+EXCEPTION
+   WHEN e_salary_too_high THEN
+      DBMS_OUTPUT.PUT_LINE('Salary exceeds maximum limit');
+END;
+```
+
+3. Non-predefined Exceptions
+
+- Oracle errors without predefined names
+- Referenced using EXCEPTION_INIT pragma
+
+```
+DECLARE
+   e_insert_error EXCEPTION;
+   PRAGMA EXCEPTION_INIT(e_insert_error, -1400);
+BEGIN
+   -- code that might raise ORA-01400
+
+EXCEPTION
+   WHEN e_insert_error THEN
+      DBMS_OUTPUT.PUT_LINE('Cannot insert NULL value');
+END;
+```
+
+Exception Handling Best Practices:
+
+- Always include exception handlers for expected error condition
+- Use WHEN OTHERS as the last exception handler
+- Log exception details for debugging
+- Clean up resources (close cursors, etc) in exception handlers
+
+### Handling the exception
+
+Exception handling in PL/SQL allows to gracefully handle runtime errors. Here's how to handle different typess of exceptions:
+
+1. Basic Exception Handling Structure:
+
+```
+DECLARE
+   -- declarations
+BEGIN
+   -- executable statements
+
+EXCEPTION
+   WHEN exception_name1 THEN
+      -- handle for exception1
+   WHEN exception_name2 THEN
+      -- handle for exception2
+   WHEN OTHERS THEN
+      -- handle for all other exceptions
+END;
+```
+
+2. Handling Predefined Exceptions:
+
+```
+DECLARE
+   v_emp_name EMPLOYEES.first_name%TYPE;
+BEGIN
+   SELECT first_name INTO v_name
+   FROM employees
+   WHERE employee_id = 99999;
+
+EXCEPTION
+   WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('Employee not found');
+   WHEN TOO_MANY_ROWS THEN
+      DBMS_OUTPUT.PUT_LINE('Multiple employee found');
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('ERROR: ' || SQLERRM);
+END;
+```
+
+3. Handling User-DEfined Exception:
+
+```
+DECLARE
+   e_invalid_salary EXCEPTION;
+   v_salary NUMBER := 5000;
+BEGIN
+   IF v_salary < 1000 THEN
+      RAISE e_invalid_salary;
+   END IF;
+   -- process salary
+EXCEPTION
+   WHEN e_invalid_salary THEN
+      DBMS_OUTPUT.PUT_LINE('Salary cannot be less than 5000');
+END;
+```
+
+4. User EXCEPTION_INIT;
+
+```
+DECLARE
+   e_insert_error EXCEPTION;
+   PRAGMA EXCEPTION_INIT(e_insert_error, -1400);
+BEGIN
+   -- code that might raise ORA-01400
+EXCEPTION
+   WHEN e_insert_error THEN
+      DBMS_OUTPUT.PUT_LINE('Cannot insert NULL values');
+      ROLLBACK;
+END;
+```
+
+- Always include specific exception handlers before WHEN OTHERS
+- Log exception details for debugging
+- Clean up resources in exception handlers
+- Use ROLLBACK when necessary
+- Include meaningful error messages
+
+### Handling Non-predefined exceptions
+
+Non-predefined exceptions are Oracle errors that don't have predefined names but have error numbers. Can handle them using the EXCEPTION_INIT pragma to associate an error number with an exception name.
+
+Syntax & Example:
+
+```
+DECLARE
+   -- Declare custom exception
+   e_insert_error EXCEPTION;
+   -- Associate Oracle error number with the exception
+   PRAGMA EXCEPTION_INIT(e_insert_error, -1400); -- -1400 is NOT NULL violation
+
+   v_dept_id NUMBER := NULL;
+BEGIN
+   -- Attempt to insert NULL into a NOT NULL column
+   INSERT INTO departments(department_id)
+   VALUES(v_dept_id);
+
+EXCEPTION
+   WHEN e_insert_error THEN
+      DBMS_OUTPUT.PUT_LINE('Error: Cannot insert NULL value');
+      DBMS_OUTPUT.PUT_LINE('Error Code: ' || SQLCODE);
+      DBMS_OUTPUT.PUT_LINE('Error Message: ' || SQLERRM);
+      ROLLBACK;
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Unexpected error occured');
+      ROLLBACK;
+END;
+```
+
+- Use PRAGMA EXCEPTION_INIT to map Oracle error number to exception names
+- Error numbers are negative integers (-1400, -2291);
+- Always include error handling code (logging, cleanup, rollback)
+- Use SQLCODE and SQLERRM to get error details
+- Please specific handlers before WHEN OTHERS
+
+### RAISE_APPLICTION_ERROR procedure
+
+The RAISE_APPLICATION_ERROR procedure allows to reaise custom errors with custom error messages in PL/SQL code. This is useful for creating meaningful, application specific error messages.
+
+Syntax:
+
+```
+RAISE_APPLICATION_ERROR(error_number, error_message [, keep_errors]);
+```
+
+- `error_number`: A negative integer between -20999 and -20000
+- `error_message`: Custom error message (Up to 2048 bytes)
+- `keep_errors`: Boolean to keep or clean existing errors (optional)
+
+Example:
+
+```
+DECLARE
+   v_salary NUMBER := 5000;
+   v_max_salary NUMBER := 4000;
+BEGIN
+   IF v_salary > v_max_salary THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Salary ' || v_salary || ' exceeds maximum allowed ' || v_max_salary);
+   END IF;
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error Code: ' || SQLCODE);
+      DBMS_OUTPUT.PUT_LINE('Error Message: ' || SQLERRM);
+END;
+```
+
+- Use for custom application-specific errors
+- Error numbers must be between -20999 and -20000
+- Provides better error handling and debugging
+- Can include dynamic content in error messages
