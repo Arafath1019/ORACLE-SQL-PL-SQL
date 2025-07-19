@@ -1835,3 +1835,679 @@ END;
 - Error numbers must be between -20999 and -20000
 - Provides better error handling and debugging
 - Can include dynamic content in error messages
+
+### Whar are Functions & Procedures and Why we use?
+
+Functions and procedures are two types of subprograms in PL/SQL that help organize code into reusable, modular units.
+
+Key Differences:
+
+- Functions MUST return a value, Procedures MAY return values (through OUT parameters)
+- Functions can be used in SQL statements, procedures cannot
+- Functions are typically used for computations, Procedures for performing actions
+
+Why use Functions and Procedures:
+1.Code Reusability 2. Modularity and maintainability 3. Better organization of business logic 4. Reduced code duplication 5. Easier debugging 6. Security through encapsulation
+
+Example Function:
+
+```
+CREATE OR REPLACE FUNCTION calculate_bonus(
+   p_salary IN NUMBER,
+   p_years IN NUMBER
+) RETURN NUMBER IS
+   v_bonus NUMBER;
+BEGIN
+   v_bonus := p_salary * (p_year * 0.01);\
+   return v_bonus;
+EXCEPTION
+   WHEN OTHERS THEN
+      RETURN 0;
+END calculate_bonus;
+```
+
+Example Procedure:
+
+```
+CREATE OR REPLACE PROCEDURE update_employee_salary(
+   p_emp_id IN NUMBER,
+   p_new_salary IN NUMBER,
+   p_success OUT BOOLEAN
+) IS
+BEGIN
+   UPDATE employees
+   SET salary = p_new_salary
+   WHERE employee_id = p_emp_id;
+
+   p_success := SQL%FOUND;
+   COMMIT;
+EXCEPTION
+   WHEN OTHERS THEN
+      p_success := FALSE;
+      ROLLBACK;
+END update_employee_salary;
+```
+
+Usage:
+
+```
+-- Using the function
+SELECT employee_id, calculate_bonus(salary, 5)
+FROM employees;
+
+-- Using the procedure
+DECLARE
+   v_success BOOLEAN;
+BEGIN
+   update_employee_salary(101, 5000, v_success);
+   IF v_success THEN
+      DBMS_OUTPUT.PUT_LINE('Salary updated successfully');
+   END IF;
+END;
+```
+
+### Creating and Using Stored Procedures in PL/SQL
+
+A stored procedure is a named PL/SQL block that performs a specific task.
+
+Basic Syntax:
+
+```
+CREATE [OR REPLACE] PROCEDURE procedure_name(
+   parameter1 [IN|OUT|IN OUT] datatype,
+   parameter2 [IN|OUT|IN OUT] datatype
+) IS|AS
+   -- Declaration section
+BEGIN
+   -- Execution section
+EXCEPTION
+   -- Execution section
+END procedure_name;
+```
+
+Example:
+
+1. Simple Procedure Without Parameters:
+
+```
+CREATE OR REPLACE PROCEDURE print_hello IS
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('Hello World');
+END print_hello;
+```
+
+2. Procedure With Parameters:
+
+```
+CREATE OR REPLACE PROCEDURE update_salary (
+   p_emp_id IN NUMBER,
+   p_amount IN NUMBER,
+   p_success OUT BOOLEAN
+) IS
+BEGIN
+   UPDATE employees
+   SET salary = salary + p_amount
+   WHERE employee_id = p_emp_id;
+
+   p_success := SQL%FOUND;
+   COMMIT;
+EXCEPTION
+   WHEN OTHERS THEN
+      p_success := FALSE;
+      ROLLBACK;
+END update_salary;
+```
+
+Executing Procedures:
+
+```
+-- Method 1: Using EXECUTE
+EXECUTE print_hello;
+
+-- Method 2: In a PL/SQL block
+DECLARE
+   v_success BOOLEAN;
+BEGIN
+   update_salary(10, 1000, v_success);
+
+   IF v_success THEN
+      DBMS_OUTPUT.PUT_LINE('Salary update successfully');
+   END IF;
+END;
+```
+
+- Use IN for input parameters, OUT for output parameters
+- Use IN OUT when parameters needs to be both input and update
+- Procedures can modify database state (INSERT, UPDATE, DELETE)
+- Always include error handling for robustness
+
+### Using IN & OUT parameter
+
+IN and OUT parameters allow to pass values into and receive values from PL/SQL procedures.
+
+Parameter Modes:
+
+- `IN`: Input parameter (default) - pass values into procedure
+- `OUT`: Output parameters - return values from procedure
+- `IN OUT`: Both input and output - can be modified inside procedure
+
+Example:
+
+```
+CREATE OR REPLACE PROCEDURE calculate_salary_info (
+   p_emp_id IN NUMBER,
+   p_salary OUT NUMBER,
+   p_job_id OUT VARCHAR2,
+   p_raise IN NUMBER DEFAULT 0
+) IS
+BEGIN
+   -- Get employee info
+   SELECT salary, job_id
+   INTO p_salary, p_job_id
+   FROM employee
+   WHERE employee_id = p_emp_id;
+
+   -- Calculate new salary if raise provided
+   IF p_raise > 0 THEN
+      p_salary := p_salary * (1+p_raise/100)
+   END IF;
+
+EXCEPTION
+   WHEN NO_DATA_FOUND THEN
+      p_salary := NULL;
+      p_job_id := NULL;
+      DBMS_OUTPUT.PUT_LINE('Employee Not Found');
+END calculate_salary_info;
+```
+
+Using the procedure:
+
+```
+DECLARE
+   v_salary NUMBER;
+   v_job_id VARCHAR2(10);
+BEGIN
+   -- Call procedure
+   calculate_salary_info(
+      p_emp_id => 101,
+      p_salary => v_salary,
+      p_job_id => v_job_id,
+      p_raise => 10
+   );
+
+   IF v_salary IS NOT NULL THEN
+      DBMS_OUTPUT.PUT_LINE('Salary: ' || v_salary);
+      DBMS_OUTPUT.PUT_LINE('Job: ' || v_job_id);
+   END IF;
+END;
+```
+
+- IN parameters can't be modified inside the procedure
+- OUT parameters must be assigned a value inside the procedure
+- IN OUT parameters can be both read and modified
+- Use meaningful parameters names
+- Always handle potential errors
+
+### Named & Mixed Notations and Default Option
+
+When calling procedures or functions in PL/SQL, can use different parameter notations and set default values for parameters.
+
+1. Positional Notation:
+
+```
+-- Parameter are passed in the order they were declared
+CREATE OR REPLACE PROCEDURE update_employee(
+   p_id IN NUMBER,
+   p_name IN VARCHAR2,
+   p_salary IN NUMBER
+) IS
+BEGIN
+   -- procedure body
+END;
+
+-- calling with positional notation
+EXECUTE update_employee(101, 'John', 5000);
+```
+
+2. Named Notation:
+
+```
+-- Parameters are specified by name, order doesn't matter
+EXECUTE update_salary(
+   p_salary => 5000,
+   p_id => 101,
+   p_name => 'John'
+);
+```
+
+3. Mixed Notation:
+
+```
+-- Combine positional and named notation
+-- Positional parameters must come first
+EXECUTE update_employee(101, p_salary => 500, p_name => 'John');
+```
+
+4. Default Parameter values:
+
+```
+CREATE OR REPLACE PROCEDURE update_employee(
+   p_id IN NUMBER,
+   p_name IN VARCHAR2,
+   p_salary IN NUMBER DEFAULT 1000,
+   p_dept IN NUMBER DEFUALT 10
+) IS
+BEGIN
+   -- procedure body
+END;
+
+-- Can ommit parameters with defaults
+EXECUTE update_employee(101, 'John');
+EXECUTE update_employee(101, 'John', p_dept => 20);
+```
+
+- Named notation makes code more readable and less prone to errors
+- Default values make procedures more flexible
+- Can mix notations but positional must come first
+- Defualt values must be constants or literals
+
+### Creating & Using Functions
+
+A function is a named PL/SQL block that returns a value. Unline procedures, functions must return a value and can be used in SQL statements.
+
+Basic Syntax:
+
+```
+CREATE [OR REPLACE] FUNCTION function_name (
+   parameter1 [IN] datatype,
+   parameter2 [IN] datatype
+) RETURN return_datatype
+IS|AS
+   -- Declaration section
+BEGIN
+   -- Executable section
+   RETURN value;
+EXCEPTION
+   -- Exception section
+END function_name;
+```
+
+Examples:
+
+1. Simple Function:
+
+```
+CREATE OR REPLACE FUNCTION get_salary_grade(
+   p_salary IN NUMBER
+) RETURN VARCHAR2
+IS
+   v_grade VARCHAR2;
+BEGIN
+   CASE
+      WHEN p_salary >= 50000 THEN v_grade := 'A';
+      WHEN p_salary >= 30000 THEN v_grade := 'B';
+      ELSE v_grade := 'C';
+   END CASE;
+
+   RETURN v_grade;
+EXCEPTION
+   WHEN OTHERS THEN
+      RETURN 'X';
+END get_salary_grade;
+```
+
+2. Using Function in SQL:
+
+```
+SELECT employee_id, first_name, salary, get_salary_grade(salary) as grade
+FROM employees;
+```
+
+3. Using Function in PL/SQL:
+
+```
+DECLARE
+   v_grade VARCHAR2;
+BEGIN
+   v_grade := get_salary_grade(450000);
+   DBMS_OUTPUT.PUT_LINE('Salary Grade: ' || v_grade);
+END;
+```
+
+- Must include RETURN statement
+- Can only return a single value
+- Can be used in SQL statements
+- Parameters are IN by default
+- Cannot contain DML statements if used in SQL queries.
+
+### Local Subprograms
+
+Local subprograms are procedures and functions that are declared and defined within another PL/SQL block, procedure, or function. They help organize code and limit the scope of helper routines.
+
+- Only accessible within the enclosing block
+- Can access variables from the enclosing block
+- Help break down complex logic into smaller units
+- Improve code readability and maintainability
+
+Example:
+
+```
+CREATE OR REPLACE PROCEDURE calculate_payroll(
+   p_dept_id IN NUMBER
+) IS
+   -- Local function declaration
+   FUNCTION calculate_bonus(
+      p_salary IN NUMBER,
+      p_year IN NUMBER
+   ) RETURN NUMBER
+   IS
+   BEGIN
+      RETURN p_salary * (p_years * 0.01);
+   END calculate_bonus;
+
+   -- Local procedure declaration
+   PROCEDURE log_payment(
+      p_emp_id IN NUMBER,
+      p_amount IN NUMBER
+   ) IS
+   BEGIN
+      INSERT INTO payment_log(employee_id, amount, log_data)
+      VALUES(p_emp_id, p_amount, SYSDATE);
+   END log_payment;
+
+   -- Variable for main procedure
+   v_total_payroll NUMBER := 0;
+BEGIN
+   -- Main procedure logic using local subprograms
+   FOR emp_rec IN (SELECT * FROM employees WHERE department_id = p_dept_id) LOOP
+      v_total_payroll := emp_rec.salary + calculate_bonus(emp_rec.salary, 5);
+      log_payment(emp_rec.employee_id, v_total_payroll);
+   END LOOP;
+END calculate_payroll;
+```
+
+- Better code organization
+- Encapsulation of helper logic
+- Reduced name conflicts
+- Improve maintainability
+- Limited scope of utility routines
+
+### Overloading the subprograms
+
+Overloading allows to define multiple subprograms (procedures or functions) with the same name but different parameter lists. This provides flexibility in how the subprogram can be called.
+
+- Same name, different parameters (number, type or order)
+- Must have different parameter signatures
+- Return type alone cannot distinguish overloaded functions
+- Helps create more intuitive interfaces
+
+Example:
+
+```
+-- Overloaded procedures for employee salary updates
+
+CREATE OR REPLACE PACKAGE emp_mgmt IS
+   -- Update by percentage
+   PROCEDURE update_salary(
+      p_emp_id IN NUMBER,
+      p_percent IN NUMBER
+   );
+
+   -- Update by absolute amount
+   PROCEDURE update_salary(
+      p_emp_id IN NUMBER,
+      p_amount IN NUMBER,
+      p_is_bonus IN BOOLEAN
+   );
+
+   -- Update for department
+   PROCEDURE update_salarty (
+      p_dept_id IN NUMBER,
+      p_percent IN NUMBER,
+      p_max_increase IN NUMBER
+   );
+END emp_mgmt;
+```
+
+Package Body Implementation:
+
+```
+CREATE OR REPLACE PACKAGE BODY emp_mgmt IS
+    -- Update by percentage
+    PROCEDURE update_salary(
+        p_emp_id IN NUMBER,
+        p_percent IN NUMBER
+    ) IS
+    BEGIN
+        UPDATE employees
+        SET salary = salary * (1 + p_percent/100)
+        WHERE employee_id = p_emp_id;
+    END update_salary;
+
+    -- Update by absolute amount
+    PROCEDURE update_salary(
+        p_emp_id IN NUMBER,
+        p_amount IN NUMBER,
+        p_is_bonus IN BOOLEAN
+    ) IS
+    BEGIN
+        IF p_is_bonus THEN
+            UPDATE employees
+            SET salary = salary + p_amount
+            WHERE employee_id = p_emp_id;
+        ELSE
+            UPDATE employees
+            SET salary = p_amount
+            WHERE employee_id = p_emp_id;
+        END IF;
+    END update_salary;
+
+    -- Update for department
+    PROCEDURE update_salary(
+        p_dept_id IN NUMBER,
+        p_percent IN NUMBER,
+        p_max_increase IN NUMBER
+    ) IS
+    BEGIN
+        UPDATE employees
+        SET salary = LEAST(salary * (1 + p_percent/100), salary + p_max_increase)
+        WHERE department_id = p_dept_id;
+    END update_salary;
+END emp_mgmt;
+```
+
+Usage:
+
+```
+BEGIN
+    -- Give 10% raise
+    emp_mgmt.update_salary(101, 10);
+
+    -- Give $5000 bonus
+    emp_mgmt.update_salary(101, 5000, TRUE);
+
+    -- Give department 10% raise with max $5000
+    emp_mgmt.update_salary(10, 10, 5000);
+END;
+```
+
+### Handling the exceptions in subprograms
+
+When handling exceptions in PL/SQL subprograms (procedures or functions), need to consider both local exception handling and propagation to the calling program.
+
+Example of Exception Handling in a Procedure:
+
+```
+CREATE OR REPLACE PROCEDURE update_employee_salary (
+   p_emp_id IN NUMBER,
+   p_salary IN NUMBER,
+   p_status OUT VARCHAR2
+) IS
+   e_invalid_salary EXCEPTION;
+   v_min_salary NUMBER := 1000;
+BEGIN
+   -- Validate Salary
+   IF p_salary < v_min_salary THEN
+      RAISE e_invalid_salary;
+   END IF;
+
+   -- Update employee salary
+   UPDATE employees
+   SET salary = p_salary
+   WHERE employee_id = p_emp_id;
+
+   IF SQL%FOUND THEN
+      p_status := 'SUCCESS';
+   ELSE
+      p_status := 'Employee not found';
+   END IF;
+EXCEPTION
+   WHEN e_invalid_salary THEN
+      p_status := 'Error: Salary below minimum';
+      ROLLBACK;
+   WHEN OTHERS THEN
+      p_status := 'Error: ' || SQLERRM;
+      ROLLBACK;
+END update_employee_salary;
+```
+
+Example of Exception Handling in a Function:
+
+```
+CREATE OR REPLACE FUNCTION calculate_bonus(
+   p_salary IN NUMBER,
+   P_years IN NUMBER
+) RETURN NUMBER
+IS
+   v_bonus NUMBER;
+   e_invalid_input EXCEPTION;
+BEGIN
+   -- Validate input
+   IF p_salary <= 0 OR p_years <= 0 THEN
+      RAISE e_invalid_input;
+   END IF;
+
+   -- Calculate bonus
+   v_bonus := p_salary * (p_years * 0.01);
+   RETURN v_bonus;
+EXCEPTION
+   WHEN e_invalid_input THEN
+      RETURN 0;
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+      RETURN NULL;
+END calculate_bonus;
+```
+
+- Use OUT parameters in procedures to return error status
+- Handle both user-defined and system exceptions
+- Include ROLLBACK in exception handlers when necessary
+- Consider exception propagation to calling programs
+- Long errors for debugging purpose
+
+### Finding & Removing Subprograms
+
+Can query the data dictionary views to find information about stored procedures and functions:
+
+```
+-- Find all procedures/functions owned by current user
+SELECT object_name, object_type, status
+FROM user_objects
+WHERE object_type IN ('PROCEDURE', 'FUNCTION');
+
+-- Find source code of a procedure/function
+SELECT text
+FROM user_source
+WHERE name = 'PROCEDURE_NAME'
+ORDER BY LINE;
+
+-- Find dependencies
+SELECT *
+FROM user_dependencies
+WHERE referenced_name = 'PROCEDURE_NAME';
+```
+
+Removing subprograms:
+
+```
+-- Drop a procedure
+DROP PROCEDURE procedure_name;
+
+-- Drop a function
+DROP FUNCTION function_name;
+
+-- Drop if exists
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PROCEDURE procedure_name';
+EXCEPTION
+   WHEN OTHERS THEN
+      IF SQLCODE != -4043 THEN
+         RAISE;
+      END IF;
+END;
+```
+
+- Always check for dependencies before dropping
+- Consider using CREATE OR REPLACE instead of DROP + CREATE
+- Dropping a package drops all its procedures and functions
+- Must have appropriate privileges to drop subprograms
+- Cannot drop individual procedures within a package
+
+### Regular & Pipelined Table Functions
+
+Table functions are functions that return collections (nested tables or VARRAYs) as results. There are two types:
+
+1. Regular Table Functions:
+
+```
+-- Example of a Regular Table Function
+CREATE OR REPLACE TYPE number_list IS TABLE OF NUMBER;
+/
+CREATE OR REPLACE FUNCTION get_numbers(p_max IN NUMBER)
+RETURN number_list IS
+   v_result number_list := number_list();
+BEGIN
+   FOR i IN 1..p_max LOOP
+      v_result.EXTEND;
+      v_result(i) := i;
+   END LOOP;
+   RETURN v_result;
+END;
+```
+
+2. Pipelined Table Functions
+
+```
+-- Example of a pipelined table function
+CREATE OR REPLACE FUNCTION get_numbers_piped(p_max IN NUMBER)
+RETURN number_list PIPELINED IS
+BEGIN
+   FOR i IN 1..p_max LOOP
+      PIPE ROW(i);
+   END LOOP;
+   RETURN;
+END;
+/
+```
+
+- Regular table functions must build the entire collection before returning
+- Pipelined functions return rows one at a time using PIPE ROW
+- Pipelined functions are more memory efficient for large result sets
+
+Usage:
+
+```
+-- Using Regular Table Function
+SELECT * FROM TABLE(get_numbers(5));
+
+-- Using Pipelined Table Function
+SELECT * FROM TABLE(get_numbers_piped(5));
+```
+
+Benefits of Pipelined Functions:
+
+- Better memory utilization
+- Faster initial results
+- More efficient for large data sets
+- Can return results while still processing
+- Better for streaming applications
