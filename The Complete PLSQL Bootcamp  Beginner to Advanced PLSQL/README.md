@@ -2511,3 +2511,217 @@ Benefits of Pipelined Functions:
 - More efficient for large data sets
 - Can return results while still processing
 - Better for streaming applications
+
+### What are packages?
+
+A package is a schema object that groups related PL/SQL types, variables, procedures, functions and other constructs together as a logical unit. It consists of two parts:
+
+1. Package Specification (Header): Declares public elements
+2. Package Body: Contains implementations of procedures/functions and private elements
+
+Package Specification Example:
+
+```
+CREATE OR REPLACE PACKAGE emp_mgmt IS
+   -- Public variables
+   g_min_salary CONSTANT NUMBER := 1000;
+
+   -- Public procedure declarations
+   PROCEDURE add_employee(
+      p_name VARCHAR2,
+      p_salary NUMBER
+   );
+
+   -- Public function declarations
+   FUNCTION get_employee_count(
+      p_dept_id NUMBER
+   ) RETURN NUMBER;
+
+   -- Public Types
+   TYPE emp_record IS RECORD (
+      emp_id NUMBER,
+      name VARCHAR2(100)
+   );
+END emp_mgmt;
+```
+
+Package Body Example:
+
+```
+CREATE OR REPLACE PACKAGE BODY emp_mgmt IS
+   -- Private variables
+   v_last_emp_id NUMBER;
+
+   -- Procedure implementation
+   PROCEDURE add_employee(
+      p_name VARCHAR2,
+      p_salary NUMBER
+   ) IS
+   BEGIN
+      IF p_salary >= g_min_salary THEN
+         -- Implementation code
+         NULL;
+      END IF;
+   END add_employee;
+
+   -- Function implementation
+   FUNCTION get_employee_count(
+      p_dept_id NUMBER
+   ) RETURN NUMBER
+   IS
+      v_count NUMBER;
+   BEGIN
+      SELECT COUNT(*) INTO v_count
+      FROM employees
+      WHERE department_id = p_dept_id;
+      RETURN v_count;
+   END get_employee_count;
+END emp_mgmt;
+```
+
+Key Benefits:
+
+- Encapsulation: Hide Implementation details
+- Better Organization: Group related components
+- Easy Maintenance: Modify implementation without affecting dependent applications
+- Package-level Variables: Share data between procedures/functions
+- Performance: Package objects are loaded into memory once
+
+Usage:
+
+```
+BEGIN
+   -- Call package procedure
+   emp_mgmt.add_employee('John Doe', 5000);
+
+   -- Use package function
+   DBMS_OUTPUT.PUT_LINE('Employee count: ' || emp_mgmt.get_employee_count(10));
+END;
+```
+
+### Creating & Using & Modifying & Removing the packages
+
+1. Creating Packages
+
+```
+-- Package Specification
+CREATE OR REPLACE PACKAGE employee_pkg IS
+   -- Constants
+   c_min_salary CONSTANT NUMBER := 2000;
+
+   -- Types
+   TYPE emp_record IS RECORD(
+      id NUMBER,
+      name VARCHAR2
+   );
+
+   -- Procedure declarations
+   PROCEDURE add_employee(
+      p_name IN VARCHAR2,
+      p_salary IN NUMBER
+   );
+
+   -- Function declarations
+   FUNCTION get_salary(p_emp_id IN NUMBER)
+   RETURN NUMBER;
+END employee_pkg;
+/
+
+-- Package Body
+CREATE OR REPLACE PACKAGE BODY employee_pkg IS
+   -- Private variable
+   v_last_id NUMBER;
+
+   -- Procedure implementation
+   PROCEDURE add_employee(
+      p_name IN VARCHAR2,
+      p_salary IN NUMBER
+   ) IS
+   BEGIN
+      IF p_salary >= c_min_salary THEN
+         INSERT INTO employees(name, salary)
+         VALUES(p_name, p_salary);
+      END IF;
+   END add_employee;
+
+   -- Function implementation
+   FUNCTION get_salary(p_emp_id IN NUMBER)
+   RETURN NUMBER IS
+      v_salary NUMBER;
+   BEGIN
+      SELECT salary INTO v_salary
+      FROM employees
+      WHERE employee_id = p_emp_idl
+      RETURN v_salary;
+   END get_salary;
+END employee_pkg;
+```
+
+2. Using Package
+
+```
+-- Using package procedures and functions
+BEGIN
+   -- Call procedure
+   employee_pkg.add_employee('John Doe', 3000);
+
+   -- Use functions
+   DBMS_OUTPUT.PUT_LINE('Salary: ' || employee_pkg.get_salary(101));
+
+   -- Access public constant
+   IF v_salary < employee_pkg.c_min_salary THEN
+      DBMS_OUTPUT.PUT_LINE('Salary below minimum');
+   END IF;
+END;
+```
+
+3. Modifying Packages
+
+```
+-- Modify package Specification
+CREATE OR REPLACE PACKAGE employee_pkg IS
+   -- Add new elements
+   c_max_salary CONSTANT NUMBER := 10000;
+
+   PROCEDURE update_salary(p_emp_id IN NUMBER);
+END employee_pkg;
+/
+
+-- Modify package body
+CREATE OR REPLACE PACKAGE BODY employee_pkg IS
+   -- Add implementation for new procedure
+   PROCEDURE update_salary (p_emp_id IN NUMBER) IS
+   BEGIN
+      UPDATE employees
+      SET salary = salary * 1.1
+      WHERE employee_id = p_emp_id;
+   END update_salary;
+END employee_pkg;
+```
+
+4. Removing Packages
+
+```
+-- Drop package body only
+DROP PACKAGE BODY employee_pkg;
+
+-- Drop entire package (specification and body)
+DROP PACKAGE employee_pkg;
+
+-- Drop if exists
+BEGIN
+   EXECUTE IMMEDIATE 'DROP PACKAGE employee_pkg';
+EXCEPTION
+   WHEN OTHERS THEN
+      IF SQLCODE != -4043 THEN
+         RAISE;
+      END IF;
+END;
+/
+```
+
+- Package specification and body are separate objects
+- Can modify body without affecting dependent objects
+- Must recompile body when specification changes
+- Dropping package drops both spec and body
+- Check dependencies before dropping package
