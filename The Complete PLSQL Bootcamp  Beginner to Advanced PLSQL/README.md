@@ -2725,3 +2725,173 @@ END;
 - Must recompile body when specification changes
 - Dropping package drops both spec and body
 - Check dependencies before dropping package
+
+### Visibility of Package Objects
+
+Package objects have different levels of visibility dependending on where they are declared and how they are accessed.
+
+1. Public Items (Package Specification)
+
+```
+CREATE OR REPLACE PACKAGE emp_pkg IS
+   -- Public constants
+   c_min_salary CONSTANT NUMBER := 2000;
+
+   -- Public variables
+   v_department_id NUMBER;
+
+   -- Public Procedure/Functions
+   PROCEDURE add_employee(p_name VARCHAR2);
+   FUNCTION get_salary(p_emp_id NUMBER) RETURN NUMBER;
+END emp_pkg;
+```
+
+- Visible to any schema with EXECUTE privileges
+- Can be referenced from any PL/SQL block
+- Available through package_name.item_name syntax
+
+2. Private Items (Package Body)
+
+```
+CREATE OR REPLACE PACKAGE BODY emp_pkg IS
+   -- Private variables (Only visible within package body)
+   v_last_emp_id NUMBER;
+
+   -- Private procedure
+   PROCEDURE validate_salary(p_salary NUMBER) IS
+   BEGIN
+      -- Implementation
+      NULL;
+   END;
+
+   -- Public procedure implementation
+   PROCEDURE add_employee(p_name VARCHAR2) IS
+   BEGIN
+      validate_salary(3000); -- Can call private procedure
+   END;
+END emp_pkg;
+```
+
+- Only visible within package body
+- Cannot be accessed from outside the package
+- Used for implementation details
+
+Visibility Rules:
+
+- Public items are visible everywhere
+- Private items are only visible in package body
+- Package variables retain values between calls
+- Items declared first in a package can be used by items declared later
+
+Best Practices:
+
+- Declare only necessary items in package specification
+- Use private items for implementation details
+- Consider security implications when making items public
+- Use meaningful nemes to avoid confusion
+
+### Illegal Object Reference & Forward Declaration
+
+Illegal Object Reference occurs when trying to reference an object before it's declared. To solve this, either need to reorder declarations or use forward declarations.
+
+Forward Declaration is a technique to declare a subprogram specification before its body, allowing mutual references between subprograms.
+
+Example of illegal Object Reference:
+
+```
+CREATE OR REPLACE PACKAGE emp_pkg IS
+   -- This would cause an error because salary_grade isn't declare yet
+   PROCEDURE validate_salary(p_salary IN NUMBER DEFAULT min_salary);
+
+   -- Constants should be declared first
+   min_salary CONSTANT NUMBER := 2000;
+END emp_pkg;
+```
+
+Correct Version with Forward Declaration:
+
+```
+CREATE OR REPLACE PACKAGE emp_pkg IS
+   -- Constants declared first
+   min_salary CONSTANT NUMBER := 2000;
+
+   -- Forward declaration of procedure
+   PROCEDURE validate_salary(p_salary IN NUMBER DEFAULT min_salary);
+
+   -- Forward declaration of function
+   FUNCTION calculate_bonus(p_emp_id NUMBER) RETURN NUMBER;
+END emp_pkg;
+
+CREATE OR REPLACE PACKAGE BODY emp_pkg IS
+   -- Mutual calling procedures need forward declaration
+   PROCEDURE update_salary(p_emp_id NUMBER); -- Forward declaration
+
+   PROCEDURE validate_salary(p_salary IN NUMBER) IS
+   BEGIN
+      IF p_salary < min_salary THEN
+         RAISE_APPLICATION_ERROR(-20001, 'Salary too low');
+      END IF;
+      update_salary(p_emp_id); -- Can call because it's forward declared
+   END validate_salary;
+
+   PROCEDURE update_salary(p_emp_id NUMBER) IS
+   BEGIN
+      validate_salary(3000); -- Can call because validate_salary is defined
+   END update_salary;
+END emp_pkg;
+```
+
+- Declare constants and types before they are used
+- Use forward declarations for mutual calling procedure
+- Package specification must declare all public items
+- Private items only need forward declaration if mutually referenced
+
+### Package Initialization
+
+Package initialization occurs when the package is first referenced in a session. The initialization section is an optional block of code that runs once per session when the package is first used.
+
+Syntax & Example:
+
+```
+CREATE OR REPLACE PACKAGE emp_pkg IS
+   -- Public variables
+   g_company_name VARCHAR2(100);
+   g_total_employees NUMBER;
+
+   -- Public Procedures/Functions
+   PROCEDURE add_employee(p_name VARCHAR2);
+END emp_pkg;
+/
+
+CREATE OR REPLACE PACKAGE BODY emp_pkg IS
+   -- Private variables
+   v_last_update DATE;
+
+-- Package initialization block
+BEGIN
+   -- This runs once when package is first used
+   SELECT COUNT(*)
+   INTO g_total_employees
+   FROM employees;
+
+   g_company_name := 'ABC Group';
+   v_last_updated := SYSDATE;
+
+   DBMS_OUTPUT.PUT_LINE('Package initialized at: ' || v_last_updated);
+END emp_pkg;
+```
+
+- Initialization code goes at the end of package body
+- Runs automatically on first package reference
+- Runs only once per session
+- Can initialize both public and private variable
+- Cannot include transaction control statements (COMMIT/ROLLBACK)
+- Good for setting up initial state of package variables
+
+Best Practices:
+
+- Keep initialization code simple and fast
+- Handle exceptions in initialization block
+- Don't reply on specific initialization order
+- Use for one-time setup operations
+- Decoument initialization behavior
