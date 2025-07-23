@@ -2895,3 +2895,202 @@ Best Practices:
 - Don't reply on specific initialization order
 - Use for one-time setup operations
 - Decoument initialization behavior
+
+### Persistent State of Packages in PL/SQL
+
+Package state refers to the values of package variables and cursors that persist across multiple calls to package subprograms within the same session.
+
+- Values persist for entire session
+- Each session has its own copy of package variables
+- Values are reset when session ends
+- Package initialization occurs once per session
+
+```
+CREATE OR REPLACE PACKAGE state_demo IS
+   -- Public variables that maintain state
+   g_counter NUMBER := 0;
+   g_last_accessed DATE;
+
+   -- Procedure to manipulate state
+   PROCEDURE increment_counter;
+   FUNCTION get_counter RETURN NUMBER;
+END state_demo;
+
+CREATE OR REPLACE PACKAGE BODY state_demo IS
+   PROCEDURE increment_counter IS
+   BEGIN
+      g_counter := g_counter + 1;
+      g_last_accessed := SYSDATE;
+   END increment_counter;
+
+   FUNCTION get_counter RETURN NUMBER IS
+   BEGIN
+      get_last_accessed := SYSDATE;
+      RETURN g_counter;
+   END get_counter;
+END state_demo;
+```
+
+Using Package State
+
+```
+-- First call in session
+BEGIN
+   state_demo.increment_counter;
+   DBMS_OUTPUT.PUT_LINE('Counter: ' || state_demo.get_counter);
+END;
+
+-- Second call in same session
+BEGIN
+   state_demo.increment_counter;
+   DBMS_OUTPUT.PUT_LINE('Counter: ' || state_demo.get_counter);
+END;
+```
+
+Use Cases:
+
+- Maintaining session-specific counters
+- Caching frequently accessed data
+- Tracking user activity within a session
+- Implementing session-level preferences
+
+Best Practices:
+
+- Use package state judiciously
+- Document state-dependent behavior
+- Consider concurrent user impacts
+- Initialize variables appropriately
+- Handle session termination cleanup if needed
+
+### Using Collections in Packages
+
+Collections can be defined and used within packages to create reusable data structures that can be accessed across multiple procedures and functions.
+
+```
+CREATE OR REPLACE PACKAGE employee_pkg IS
+    -- Define collection types
+    TYPE emp_id_list IS TABLE OF employees.employee_id%TYPE;
+    TYPE emp_name_list IS TABLE OF employees.first_name%TYPE;
+
+    -- Public collection variables
+    g_emp_ids emp_id_list;
+
+    -- Procedures using collections
+    PROCEDURE load_employee_ids(p_dept_id IN NUMBER);
+    PROCEDURE print_employee_list;
+    FUNCTION get_employee_count RETURN NUMBER;
+END employee_pkg;
+/
+
+CREATE OR REPLACE PACKAGE BODY employee_pkg IS
+    -- Private collection
+    v_emp_names emp_name_list := emp_name_list();
+
+    PROCEDURE load_employee_ids(p_dept_id IN NUMBER) IS
+    BEGIN
+        -- Initialize collection
+        g_emp_ids := emp_id_list();
+
+        -- Load employee IDs for department
+        FOR emp_rec IN (SELECT employee_id
+                       FROM employees
+                       WHERE department_id = p_dept_id) LOOP
+            g_emp_ids.EXTEND;
+            g_emp_ids(g_emp_ids.LAST) := emp_rec.employee_id;
+        END LOOP;
+    END load_employee_ids;
+
+    PROCEDURE print_employee_list IS
+    BEGIN
+        IF g_emp_ids IS NULL OR g_emp_ids.COUNT = 0 THEN
+            DBMS_OUTPUT.PUT_LINE('No employees loaded');
+            RETURN;
+        END IF;
+
+        FOR i IN 1..g_emp_ids.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('Employee ID: ' || g_emp_ids(i));
+        END LOOP;
+    END print_employee_list;
+
+    FUNCTION get_employee_count RETURN NUMBER IS
+    BEGIN
+        RETURN NVL(g_emp_ids.COUNT, 0);
+    END get_employee_count;
+END employee_pkg;
+/
+```
+
+Using the Package:
+
+```
+BEGIN
+    -- Load employees from department 10
+    employee_pkg.load_employee_ids(10);
+
+    -- Print loaded employees
+    employee_pkg.print_employee_list;
+
+    -- Get count
+    DBMS_OUTPUT.PUT_LINE('Total employees: ' ||
+                        employee_pkg.get_employee_count);
+END;
+/
+```
+
+- Collections can be defined in package specification (public) or body (private)
+- Collection types can be used across multiple procedures/functions
+- Collections maintain state within a session
+- Can combine different collection types (nested tables, VARRAYs)
+- Good for caching and batch processing operations
+
+### How can find the packages
+
+1. Find All Packages Owned by Current User
+
+```
+SELECT object_name, status, created, last_ddl_time
+FROM user_objects
+WHERE object_type IN ('PACKAGE', 'PACKAGE BODY');
+```
+
+2. Find Package Source Code
+
+```
+SELECT line, text
+FROM user_source
+WHERE type = 'PACKAGE'
+AND name = 'PACKAGE_NAME'
+ORDER BY line;
+```
+
+3. Find Package Dependencies
+
+```
+SELECT referenced_owner, referenced_name, referenced_type
+FROM user_dependencies
+WHERE type = 'PACKAGE'
+AND name = 'PACKAGE_NAME';
+```
+
+4. Find All Invalid Packages
+
+```
+SELECT object_name, status
+FROM user_objects
+WHERE object_type IN ('PACKAGE', 'PACKAGE BODY')
+AND status = 'INVALID';
+```
+
+5. Find Packagaes with Specific Privileges
+
+```
+SELECT table_name, privilege
+FROM user_tab_privs
+WHERE type = 'PACKAGE';
+```
+
+- Use `USER_` views for own packages
+- Use `ALL_` views for packages have access to
+- Use `DBA_` views for all packages
+- Check both package specification and body status
+- Remember to verify package validity after database changes
