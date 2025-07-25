@@ -3094,3 +3094,267 @@ WHERE type = 'PACKAGE';
 - Use `DBA_` views for all packages
 - Check both package specification and body status
 - Remember to verify package validity after database changes
+
+### What are triggers and triggers types
+
+A trigger is a PL/SQL block that automatically executes when specific database events occurs. Triggers can be used to enforce complex business rules, maintain data integrity and audit database changes.
+
+Types of Triggers:
+
+1. DML Triggers;
+
+```
+CREATE OR REPLACE TRIGGER employee_audit_trg
+BEFORE INSERT OR UPDATE OR DELETE ON employees
+FOR EACH ROW
+BEGIN
+   IF INSERTING THEN
+      INSERT INTO audit_log(action, emp_id, changes_date)
+      VALUES ('INSERT', :NEW.employee_id, SYSDATE)
+   ELSIF UPDATING THEN
+      INSERT INTO audit_log(action, emp_id, change_date)
+      VALUES ('UPDATE', :OLD.employee_id, SYSDATE);
+   ELSIF DELETING THEN
+      INSERT INTO audit_log(action, emp_id, change_date)
+      VALUE ('DELETE', :OLD.employee_id, SYSDATE);
+   END IF;
+END;
+```
+
+2. DDL Triggers
+
+```
+CREATE OR REPLACE TRIGGER prevent_table_drop
+BEFORE DROP ON DATABASE
+BEGIN
+   RAISE_APPLICATION_ERROR(-20000, 'Tables cannot be dropped');
+END;
+```
+
+3. INSTEAD OF Triggers
+
+```
+CREATE OR REPLACE TRIGGER emp_view_insert
+INSTEAD OF INSERT ON employees_view
+FOR EACH ROW
+BEGIN
+   INSERT INTO employees(employee_id, first_name, salary)
+   VALUES(:NEW.employee_id, :NEW.first_name, :NEW.salary)
+END;
+```
+
+Trigger Timing:
+
+- BEFORE: Executes before the triggering event
+- AFTER: Executes after the triggering event
+- INSTEAD OF: Provides alternatice logic for views
+
+Trigger Level:
+
+- Row Level (For Each row)
+- Statement Level (default)
+
+Key Features:
+
+- Can access :OLD and :NEW values in row-level triggerss
+- Can include complex business logic
+- Can prevent invalid data modification
+- Useful for auditing and maintaining data integrity
+- Can be desable/enables as needed
+
+Best Practices:
+
+- Keep truggers simple and focused
+- Handle exceptions appropriately
+- Consider perfomance impact
+- Document trigger purpose
+- Avoid recurcive tiggers when possible
+
+### DML Triggers
+
+DML (Data Manipulation Language) triggers are fired automatically in response to INSERT, UPDATE, or DELETE operations on tables.
+
+Types of DML Triggers:
+
+1. Row-Level Triggers (For Each Row)
+
+```
+CREATE OR REPLACE TRIGGER salary_check_trg
+BEFORE INSERT OR UPDATE OF salary ON employees FOR EACH ROW
+BEGIN
+   IF :NEW.salary < 1000 THE
+      RASIE_APPLICATION_ERROR(-20001, 'Salary Cannot be Less than 1000');
+   END IF;
+END;
+```
+
+2. Statement-Level Triggers
+
+```
+CREATE OR REPLACE TRIGGER audit_emp_changes
+AFTER INSERT OR UPDATE OR DELETE ON employees
+BEGIN
+   INSERT INTO audit_log(
+      event_date,
+      action,
+      user_name
+   ) VALUES (
+      SYSDATE,
+      CASE
+         WHEN INSERTING THEN 'INSERT'
+         WHEN UPDATING THEN 'UPDATE'
+         WHEN DELETING THEN 'DELETE'
+      END CASE,
+      USER
+   );
+END;
+```
+
+Key features:
+
+- `:OLD` and `:NEW` values available in row triggers
+- Can be BEFORE or AFTER the DML operation
+- Can RAISE errors to prevent changes
+- Multiple triggers can fire for same event
+- Can include complex business logic
+
+Best practices:
+
+- Use BEFORE triggers for data validation
+- Use AFTER triggers for auditing
+- Keep triggers lightweight
+- Handle exceptions properly
+- Document trigger purpose clearly
+
+Common use cases:
+
+- Data validation
+- Automatic value generation
+- Auditing changes
+- Maintaining referential integrity
+- Complex business rules enforcement
+
+### Specifying the timing of triggers
+
+Trigger timing determines when the trigger fires relative to the triggering event. There are three main timing options:
+
+1. Before Triggers:
+
+```
+CREATE OR REPLACE TRIGGER validate_salary_tgr
+BEFORE INSERT OR UPDATE OF salary ON employees FOR EACH ROW
+BEGIN
+   -- Validate before changes are made
+   IF :NEW.salary < 1000 THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Salary must be at least 1000');
+   END IF;
+END;
+```
+
+2. AFTER Triggers
+
+```
+CREATE OR REPLACE TRIGGER audit_salary_trg
+AFTER UPDATE OF salary ON employees FOR EACH ROW
+BEGIN
+   -- Log after changes are made
+   INSERT INTO salary_audit_log(
+      emp_id,
+      old_salary,
+      new_salary,
+      change_date
+   ) VALUES (
+      :NEW.employee_id,
+      :OLD.salary,
+      :NEW.salary,
+      SYSDATE
+   );
+END;
+```
+
+3. INSTEAD OF Triggers (for view only)
+
+```
+CREATE OR REPLACE TRIGGER insert_emp_view_tgr
+INSTEAD OF INSERT ON employees_view
+FOR EACH ROW
+BEGIN
+   -- Custom insert logic for view
+   INSERT INTO employees (
+      employee_id,
+      first_name,
+      salary
+   ) VALUES (
+      :NEW.employee_id,
+      :NEW.first_name,
+      :NEW.salary
+   );
+END;
+```
+
+- BEFORE triggers can validate or modify data before changes
+- AFTER triggers are good for auditing and cascading changes
+- INSTEAD OF triggers enable DML operations on complex views
+- Multiple triggers of different timing can exist on same table.
+- Triggers fire in order: BEFORE, INSTEAD OF, AFTER
+
+### Statement & Row Level Triggers
+
+There are two main levels at which triggers can execute:
+
+1. Statement Level Triggers:
+
+```
+-- Fires once per SQL statement
+CREATE OR REPLACE TRIGGER audit_emp_changes
+AFTER INSERT OR UPDATE OR DELETE ON employees
+BEGIN
+   -- Log the action that occured
+   INSERT INTO audit_log(
+      action_date,
+      action_type,
+      user_name,
+      affected_table
+   ) VALUES (
+      SYSDATE,.
+      CASE
+         WHEN INSERTIN THEN 'INSERT'
+         WHEN UPDATING THEN 'UPDATE'
+         WHEN DELETING THEN 'DELETE'
+      END,
+      USER,
+      'EMPLOYEES'
+   );
+END;
+```
+
+2. Row Level Triggers
+
+```
+-- Fire once for each row affected (use FOR EACH ROW clause)
+
+CREATE OR REPLACE TRIGGER check_salary_changes
+BEFORE UPDATE OF salary ON employees
+FOR EACH ROW
+BEGIN
+   IF :NEW.salary < :OLD.salary THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Salary cannot be decreased from ' || :OLD.salary || ' to ' || :NEW.salary);
+   END IF;
+END;
+```
+
+Key Differences:
+
+- Statement triggers fire once per SQL statement
+- Row triggers fire for each row affected by the SQL statement
+- Only row triggers can use :OLD and :NEW values
+- Row triggers use more resources with large datasets
+- Statement triggers better for auditing or logging
+
+Best Practices:
+
+- Use statement triggers for overall operation logging
+- Use row triggers for row-level validation
+- Consider performance impact with large datasets
+- Combine both levels when needed
+- Document trigger behavior clearly
