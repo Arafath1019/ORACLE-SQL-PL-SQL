@@ -3358,3 +3358,101 @@ Best Practices:
 - Consider performance impact with large datasets
 - Combine both levels when needed
 - Document trigger behavior clearly
+
+### Using NEW & OLD Qualifiers in Triggers
+
+The `:NEW` and `:OLD` qualifiers are used to reference column values before and after a DML operation (INSERT, UPDATE, DELETE) on a row level trigger.
+
+- `:NEW` refers to the new value of a column (after the DML operation)
+- `:OLD` refers to the old value of a column (before the DML operation)
+
+These qualifiers are only valid in row-level triggers.
+
+Logging Updates to a table
+
+```
+CREATE OR REPLACE TRIGGER try_log_salary_update
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+   IF :OLD.salary != :NEW.salary THEN
+      INSERT INTO salary_changes(emp_id, old_salary, new_salary, change_date)
+      VALUES (:OLD.emp_id, :OLD.salary, :NEW.salary, SYSDATE);
+   END IF;
+END;
+```
+
+Prevent Salary Reduction
+
+```
+CREATE OR REPLACE TRIGGER trg_prevent_salary_cut
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+   IF :NEW.salary < :OLD.salary THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Salary reduction not allowed');
+   END IF;
+END;
+```
+
+Delete Audit
+
+```
+CREATE OR REPLACE TRIGGER trg_log_deletion
+AFTER DELETE ON employees
+FOR EACH ROW
+BEGIN
+   INSERT INTO deleted_employees_log(emp_id, name, deleted_on)
+   VALUES(:OLD.emp_id, :OLD.name, SYSDATE);
+END;
+```
+
+### Conditional Predicates
+
+Conditional predicates allow to control trigger logic based on the type of DML operation that caused the trigger to fire. They are used inside compound triggers or single triggers supporting multiple operations.
+
+Syntax of Conditional Predicates
+
+```
+IF INSERTING THEN
+   -- Logic for insert
+ELSIF UPDATING THEN
+   -- Logic for update
+ELSIF DELETING THEN
+   -- Logic for delete
+END IF;
+```
+
+Check for specific columns in `UPDATE` triggers:
+
+```
+IF UPDATING('salary') THEN
+   -- Logic when salary column is updated
+END IF;
+```
+
+```
+CREATE OR REPLACE TRIGGER trg_all_dml
+BEFORE INSERT OR UPDATE OR DELETE ON employees
+FOR EACH ROW
+BEGIN
+   IF INSERTING THEN
+    DBMS_OUTPUT.PUT_LINE('Inserting employee: ' || :NEW.name);
+  ELSIF UPDATING THEN
+    DBMS_OUTPUT.PUT_LINE('Updating employee: ' || :OLD.name);
+  ELSIF DELETING THEN
+    DBMS_OUTPUT.PUT_LINE('Deleting employee: ' || :OLD.name);
+  END IF;
+END;
+```
+
+```
+CREATE OR REPLACE TRIGGER trg_check_salary_change
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+  IF UPDATING('salary') THEN
+    DBMS_OUTPUT.PUT_LINE('Salary changed from ' || :OLD.salary || ' to ' || :NEW.salary);
+  END IF;
+END;
+```
