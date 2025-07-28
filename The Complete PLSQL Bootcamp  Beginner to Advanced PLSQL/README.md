@@ -3456,3 +3456,186 @@ BEGIN
   END IF;
 END;
 ```
+
+### RAISE_APPLICATION_ERROR Procedure in Triggers
+
+The `RAISE_APPLICATION_ERROR` procedure is used to raise custom application errors. It's a way to enforce business rules by stopping the triggering DML operation and returning a specific error message and error number to the user or application.
+
+Syntax:
+
+```
+RAISE_APPLICATION_ERROR(error_number, message[, keep_errors]);
+```
+
+Common use cases in triggers:
+
+- Preventing invalid data changes
+- Enforcing business logic (e.g., salary cannot be decreased)
+- Blocking DML operations on certain conditions
+
+Example:
+
+```
+CREATE OR REPLACE TRIGGER trg_prevent_salary_cut
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+   IF :NEW.salary < :OLD.salary THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Salary cannot be reduced.')
+   END IF;
+END;
+```
+
+```
+CREATE OR REPLACE TRIGGER trg_no_delete_manager
+BEFORE DELETE ON employees
+FOR EACH ROW
+BEGIN
+   IF :OLD.role = 'Manager' THEN
+      RAISE_APPLICATION_ERROR(-20002, 'Managers cannot be deleted')
+   END IF;
+END;
+```
+
+```
+CREATE OR REPLACE TRIGGER trg_check_hire_date
+BEFORE INSERT ON employees
+FOR EACH ROW
+BEGIN
+   IF :NEW.hire_date > SYSDATE THEN
+      RAISE_APPLICATION_ERROR(-20003, 'Hire date cannot be in the future');
+   END IF;
+END;
+```
+
+If `RAISE_APPLICATION_ERROR` is triggered:
+
+- The DML operation is rollback
+- The custom error number and message are returned
+- The database does not perform the DML action
+
+Best Practices:
+
+- Always use error numbers between -20000 and -20999
+- Provide clear, user-friendly error message
+- Use it to enforce rules that can't be handled by constraints alone
+
+### "UPDATE OF" event in Triggers
+
+In PL/SQL, "UPDATE OF" in triggers is used to create a row-level trigger that only fires when a specific column is updated. This is useful for filtering unnecessary trigger executions and improving performace.
+
+Syntax:
+
+```
+CREATE OR REPLACE TRIGGER trigger_name
+BEFORE UPDATE OF column_name1, column_name2 ON table_name
+FOR EACH ROW
+BEGIN
+   -- trigger logic
+END;
+```
+
+Example:
+
+```
+CREATE OR REPLACE TRIGGER trg_salary_update
+BEFORE UPDATE OF salary ON employees
+FOR EACH ROW
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('Salary updated for employee ID: ' || :OLD.emp_id);
+END;
+```
+
+```
+CREATE OR REPLACE TRIGGER trg_prevent_salary_and_title_update
+BEFORE UPDATE OF salary, job_title ON employees
+FOR EACH ROW
+BEGIN
+   IF UPDATING('salary') AND UPDATING('job_title') THEN
+      RAISE_APPLICATION_ERROR(-20010, 'Cannot update salary and job title together')
+   END IF;
+END;
+```
+
+Difference between "UPDATE ON" and "UPDATE OF"
+
+- "BEFORE UPDATE ON employees" - Fires on any update on any column
+- "BEFORE UPDATE OF salary ON employees" - Fires on only when "salary" is updated
+
+Combined with ':NEW' / ':OLD' Example
+
+```
+CREATE OR REPLACE TRIGGER trg_check_salary_increase
+BEFORE UPDATE OF salary ON employees
+FOR EACH ROW
+BEGIN
+   IF :NEW.salary < :OLD.salary THEN
+      RAISE_APPLICATION_ERROR(-20005, 'Salary decrease is not allowed');
+   END IF;
+END;
+```
+
+### WHEN clause in Triggers
+
+WHEN clause in row-level triggers adds an extra condition to control whether the trigger should fire for each row.
+
+Syntax:
+
+```
+CREATE [OR REPLACE] TRIGGER trigger_name
+BEFORE | AFTER INSERT | UPDATE | DELETE ON table_name
+FOR EACH ROW
+WHEN (condition)
+BEGIN
+   -- Trigger body
+END;
+```
+
+- The condition must be a SQL expression (not pl/sql)
+- Can only use :NEW and :OLD references inside the WHEN clause
+- Cannot use PL/SQL functions or procedure calls in the WHEN clause
+
+Example:
+
+```
+CREATE OR REPLACE TRIGGER trg_high_salary_update
+BEFORE UPDATE ON employees
+FOR EACH ROW
+WHEN (:NEW.salary > 10000)
+BEGIN
+   BDMS_OUTPUT.PUT_LINE('High salary update detected for employee: ' || :NEW.name);
+END;
+```
+
+```
+CREATE OR REPLACE TRIGGER trg_dept_change
+AFTER UPDATE ON employees
+FOR EACH ROW
+WHEN (:OLD.department_id != :NEW.department_id)
+BEGIN
+   INSERT INTO department_changes(emp_id, old_dept, new_dept, change_date)
+   VALUES(:OLD.emp_id, :OLD.department_id, :NEW.department_id, SYSDATE);
+END;
+```
+
+### INSTEAD OF Triggers
+
+AN `INSTEAD OF` trigger is a special type of trigger used primarily on views (on tables). It tells Oracle what to do instead of performing the default INSERT, UPDATE or DELETE operation on a view, especially when the view is non-updatable.
+
+Why use `INSTEAD OF` Triggers?
+Oracle doesn't allow DML (INSERT/UPDATE/DELETE) directly on:
+
+- Views based on joins
+- Views with group functions, DISTINCT, UNION or subqueries
+- Views that include pseudocolumns like ROWNUM
+
+Syntax:
+
+```
+CREATE OR REPLACE TRIGGER trigger_name
+INSTEAD OF INSERT OR UPDATE OR DELETE ON view_name
+FOR EACH ROW
+BEGIN
+   -- Custom Logic
+END;
+```
