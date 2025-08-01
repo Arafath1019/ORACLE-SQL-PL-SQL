@@ -95,3 +95,84 @@ When not to use oracle?
 
 - For small projects or startups, Oracle can be costly and complex
 - Alternatives like PostgreSQL or MySQL may be better for lighter workloads
+
+### What is a table?
+
+A table in a database is a structured way to store data in rows and columns, similar to a spreadsheet. Each table represents one type of entity (students, products, employees) and each row represents a single record of that entity.
+
+Structure of a table:
+
+- Columns: Define the types of data (like name, age, date)
+- Rows: Contain actual data entries (records)
+- Fields: The intersection of a row and a column (a single data value)
+- Primary Key: A column (or combination of columns) that uniquely identifies each row
+
+Example: Students Table
+
+| ID  | Name    | Age | Grade |
+| --- | ------- | --- | ----- |
+| 1   | Alice   | 14  | A     |
+| 2   | Bob     | 15  | B     |
+| 3   | Charlie | 14  | A     |
+
+- Table name: Students
+- Column: ID, Name, Age, Grade
+- Row 1: Represents the student Alice
+- Primary Key: ID (each student has a unique id)
+
+Why Tables?
+
+- Tables organize data clearly and logically
+- They support relationships between different data sets (via keys)
+- Easy to query, update and manage using SQL
+
+### What is Relational Database RDBMS?
+
+A Relational Database Management System (RDBMS) is a type of software used to create, manage and interact with relational databases, where data is organized into tables with rows and columns and relationships between tables are defined using keys.
+
+What makes it "Relational"?
+The "relational" part means:
+
+- Data is stored in related tables
+- Tables can be linked using foreign keys
+- Can retrieve complex data using SQL joins.
+
+Example
+Table: Students
+| StudentID | Name |
+| --------- | ----- |
+| 1 | Alice |
+| 2 | Bob |
+
+Table: Courses
+| CourseID | Title |
+| -------- | ------- |
+| 101 | Math |
+| 102 | Science |
+
+Table: Enrollments
+| StudentID | CourseID |
+| --------- | -------- |
+| 1 | 101 |
+| 2 | 102 |
+
+- This shows that Alice is enrolled in Math, and Blob is enrolled in Science
+- The relationship is defined by lining StudentID and CourseID
+
+Key features of RDBMS:
+
+- Tables: Organize data into rows and columns
+- SQL Support: Structured Query Language used to query and manage data
+- Primary Keys: Uniquely identify each record in a table
+- Foreign Keys: Define relationships between tables
+- ACID Compliance: Ensures data atomicity, Consistency, Isolation and Durability
+- Data Integration: Enforces rules for accuracy and consistency
+- Concurrency Control: Manages multiple users accessing data at the same time.
+
+Common RDBMS Software:
+
+- Oracle Database
+- MySQL
+- PostgreSQL
+- SQL Server
+- IBM Db2
