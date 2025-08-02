@@ -176,3 +176,126 @@ Common RDBMS Software:
 - PostgreSQL
 - SQL Server
 - IBM Db2
+
+### Entity Relationship Logic in Database
+
+Entity-Relationship (ER) logic in a database is a way to model the structure of data by identifying:
+
+- Entity: Things or objects want to store data about
+- Attributes: The data store about those things
+- Relationship: How those things are connected
+
+This logic is usually captured in an Entity-Relationship Disgram (ERD), which is the foundation of relational database design.
+
+1. Entity
+   An entity is a real-world object or concept that can be stored in the database.
+   Example:
+
+- Student
+- Course
+- Employees
+- Department
+  Entities usually become tables in the database.
+
+2. Attribute
+   An attribute is a property or characteristic of entity.
+   Example: For the Student entity
+
+- StudentID (Primary Key)
+- Name
+- DateOfBirth
+- Email
+  Attributes become columns in the table
+
+3. Relationship
+   A relationship is a connection between two or more entities.
+   Types of relationship:
+
+- One-to-one: One Employee has one Office (Each row in one table is linked to one row in another table)
+- One-to-many: One Teacher teaches many Courses (A row in one table can link to many rows in another table)
+- Many-to-many: Many Students enrolled in many Courses (Requires a junction table, e.g. Enrollments)
+
+ER Diagram Example:
+Entities:
+
+- Student
+- Course
+- Enrollment (a junction table for many-to-many)
+
+Relationships:
+
+- A student can enroll in many courses
+- A course can have many Students
+
+ER Diagram:
+Student --------< Enrollment >-------- Course
+
+4. Keys in Relationships
+
+- Primary Key: Unique indentifies each record in a table
+- Foreign Key: Connects one table to another, referencing its primary key
+
+Example:
+In Enrollment table:
+
+- StudentID is a foreign key referencing Student(StudentID)
+- CourseID is a foreign key referencing Course(CourseID)
+
+Why ER Logic in important:
+
+- Helps design normalized database (avoid redundancy)
+- Ensures data consistency
+- Makes querying relationships efficient using JOINS
+- Aids in communication between business and technical teams
+
+### What is Pluggable Database?
+
+A Pluggable Database (PDB) is a feature of Oracle Multitenant Architecture introduced in Oracle Database 12c that allows a single Oracle database container (CDB) to hold multiple independent databases (PDBs) within it.
+
+A Pluggable Database (PDB) is a portable, self-contained database that runs inside a Container Database (CDB). It has its own data, users and objects but shares the Oracle instance (memory, processes) with other PDBs in the same container.
+
+Architecture Overview:
+
+- CDB (Container Database):
+  - The overall Oracle database instance
+  - Contains:
+    - One Root container (CDB$ROOT) - Stores common metadata and system users.
+    - One Seed PDB (PDB$SEED) - a template to create new PDBs.
+    - One or more Pluggable Databases (PDB1, PDB2,...) - user-defined databases.
+      +---------------------------+
+      | CDB (Oracle DB) |
+      | +--------+ +----------+ |
+      | | CDB$ROOT|  | PDB$SEED | |
+      | +--------+ +----------+ |
+      | +--------+ +----------+ |
+      | | PDB1 | | PDB2 | |
+      | +--------+ +----------+ |
+      +---------------------------+
+
+Key Features of Pluggable Databases:
+
+- Isolation: Each PDB is logically independent
+- Portability: Can unplug a PDB from one CDB and plug it into another
+- Rapid Provisioning: Clone from PDB$SEED or existing PDBs quickly.
+- Consolidation: Run many databases with lower resource usage
+- Centralized Management: Manage many PDBs from a single CDB
+
+Use cases:
+
+- Multi-tenant SaaS applications (Obe PDB per customer)
+- Development and testing environments (easy cloning)
+- Efficient consolidation of many small databases
+- Cloud deployments (like Oracle Autonomous Database)
+
+Security Note:
+
+- PDBs are logically isolated, but share the same Oracle instance. Use proper privileges and roles to maintain secure boundaries
+
+Example SQL to Create a New PDB:
+
+```
+CREATE PLUGGABLE DATABASE pdb1
+ADMIN USER pdbadmin IDENTIFIED BY mypassword
+FILE_NAME_CONVERT = ('/u01/app/oracle/oradata/CDB1/pdbseed/',
+                    '/u01/app/oracle/oradata/CDB1/pdb1/');
+```
