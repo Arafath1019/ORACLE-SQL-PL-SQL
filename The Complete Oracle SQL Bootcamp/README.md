@@ -516,3 +516,63 @@ Where is SQL used?
 - Data Analysis: In BI tool (Power BI, tableau)
 - Back-end Application: Web and mobile apps using SQL to store/retrieve data
 - Enterprise Systems: Banking, HR, Inventory, E-Commerce
+
+### Oracle Data Types
+
+In Oracle Database, data types define the kind of data a column, variable, or expression can hold. Choosing the right data type is important for performance, storage, and accuracy.
+
+1. Character Data Types
+
+- CHAR(n): Fixed length string (Padded with space). Max 2000 bytes
+- VARCHAR2(n): Variable length string. Most commonly used. Max 4000 bytes in SQL (more in PL/SQL)
+- NCAHR(n): Fixed length unicode string
+- NVARCHAR2(n): Variable length unicode string
+
+```
+name VARCHAR2(50);
+```
+
+2. Numeric Data Types
+
+- NUMBER(p,s): General-purpose number. p=precision, s=scale
+- INTEGER: Same as NUMBER(38, 0)
+- FLOAT: Floating point number
+
+```
+salary NUMBER(8,2);
+```
+
+3. Date and Time Data Types
+
+- DATE: Stores date and time (up to seconds)
+- TIMESTAMP: More precise than DATE (can store fractional seconds)
+- TIMESTAMP WITH TIME ZONE: Includes time zone info
+- TIMESTAMP WITH LOCAL TIME ZONE: Converts time zone to users session time zone
+- INTERVAL: Stores duration of time (e.g. 2days, 5hours)
+
+```
+hire_date DATE;
+event_time TIMESTAMP(3);
+```
+
+4. Large Object (LOB) Data Type
+
+- CLOB: Character large object (for large text)
+- BLOB: Binary large object (for images, files)
+- NCLOB: Unicode CLOB
+- BFILE: Stores file pointers to external binary files (real-only)
+
+```
+article CLOB;
+image_data BLOB;
+```
+
+5. Raw and Binary Data Types
+
+- RAW(n): Stores binary data (up to 2000 bytes)
+- LONG ROW: Variable length binary (up to 2GB, deprecated)
+
+6. ROWID and UROWID
+
+- ROWID: Unique ID of a row in a table (physical address)
+- UROWID: For both physical and logical row identifiers
