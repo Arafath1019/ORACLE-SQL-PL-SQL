@@ -45,6 +45,8 @@ Uses:
 - Scientific research
 - Business analytics
 
+* DB Engines Ranking: https://db-engines.com/en/ranking
+
 ### Why Oracle Database?
 
 Oracle database is one of the most popular and powerful database management systems in the world. Organizations choose oracle for many reasons, especially when they need high performance, security, scalability and advanced features.
@@ -299,3 +301,218 @@ ADMIN USER pdbadmin IDENTIFIED BY mypassword
 FILE_NAME_CONVERT = ('/u01/app/oracle/oradata/CDB1/pdbseed/',
                     '/u01/app/oracle/oradata/CDB1/pdb1/');
 ```
+
+### Introduction to database objects
+
+In a database, objects are the components that store and manage data, define its structure, and control its behavior. They are created and managed using SQL commands.
+
+Common Database Objects:
+
+- Table: Stores data in rows and columns
+- View: A virtual table based on a query
+- Index: Improves the speed of data retrieval
+- Sequence: Automatically generates numeric values (e.g. for primary key)
+- Synonym: An alias for another database object (often for tables or views)
+- Procedure: A stored block of code that performs on action
+- Function: Similar to a procedure but returns a value
+- Trigger: Code that executes automatically in response to events (e.g. insert, update)
+- Package: A group of related procedures, functions and variables
+- Constraint: Rules to enforce data integrity (e.g. PRIMARY KEY, FOREIGN KEY)
+- User / Schema: Represents the owner of database objects and defines access
+
+1. Table
+
+- Main structure for storing data
+- Has columns and rows
+
+```
+CREATE TABLE employees (
+  emp_id NUMBER PRIMARY KEY,
+  name VARCHAR2(50),
+  salary NUMBER
+);
+```
+
+2. Views
+
+- A saved SQL query that shows data from one or more tables
+
+```
+CREATE VIEW high_salary_emps AS
+SELECT name, salary FROM employees WHERE salary > 50000;
+```
+
+3. Index
+
+- Speeds up data lookup (like an index in book)
+
+```
+CREATE INDEX emp_name_idx ON employees(name);
+```
+
+4. Sequence
+
+- Auto-generated unique numbers (often for primary keys)
+
+```
+CREATE SEQUENCE emp_seq START WITH 1 INCREMENT BY 1;
+```
+
+5. Synonym
+
+- Alias to simplify access to other objects
+
+```
+CREATE SYNONYM emp FOR HR.employees;
+```
+
+6. Stored Procedure
+
+- A reusable block of PL/SQL code that performs a task
+
+```
+CREATE PROCEDURE raise_salary (id NUMBER, amount NUMBER) AS
+BEGIN
+  UPDATE employees SET salary = salary + amount WHERE emp_id = id;
+END;
+```
+
+7. Function
+
+- Similar to a procedure but returns a value
+
+```
+CREATE FUNCTION get_salary (id NUMBER) RETURN NUMBER AS
+  s NUMBER;
+BEGIN
+  SELECT salary INTO s FROM employees WHERE emp_id = id;
+  RETURN s;
+END;
+```
+
+8. Trigger
+
+- Automatically runs before or after certain events (INSERT, UPDATE, DELETE).
+
+```
+CREATE TRIGGER log_salary_update
+AFTER UPDATE OF salary ON employees
+FOR EACH ROW
+BEGIN
+  INSERT INTO salary_log (emp_id, old_salary, new_salary)
+  VALUES (:OLD.emp_id, :OLD.salary, :NEW.salary);
+END;
+```
+
+9. Package
+
+- Groups multiple procedures, functions, variables together.
+
+```
+CREATE PACKAGE emp_tools AS
+  PROCEDURE hire_employee(...);
+  FUNCTION calc_bonus(...);
+END;
+```
+
+10. Constraint
+
+- Rules that ensure data integrity.
+
+```
+CREATE TABLE dept (
+  dept_id NUMBER PRIMARY KEY,
+  name VARCHAR2(50) UNIQUE
+);
+```
+
+### What is a Schema?
+
+A schema is a logical container in a database that holds all the related database objects - such as tables, views, indexes, procedures and more - that belong to a specific user or application.
+
+A schema is like a folder in a database, and the database objects (tables, views, etc) are the files inside it.
+
+Example:
+Suppose have a user named hr. The hr schema might include:
+hr.employees (table), hr.departments (table), hr.get_salary() (function), hr.salary_log (table).
+Here hr is both the username and the schema name.
+
+Schema vs Database (especially in oracle)
+
+- Schema: In oracle - Owned by a user account, holds objects, In MySQL/PostgreSQL - A namespace within a database.
+- Database: In oracle - A collection of schemas (CDBs, PDBs), In MySQL/PostgreSQL - One main logical container
+
+- In Oracle, one user = one schema
+- In PostgreSQL, one database can have multiple schemas
+
+Why use schemas?
+
+- Organization - Group related objects (HR, Sales, etc)
+- Security - Control access per schema/user
+- Reusability - Same object name in different schemas
+- Namespace separation - Avoid object name collisions
+
+Example SQL:
+
+```
+CREATE USER sales IDENTIFIED BY password;
+
+GRANT CONNECT, RESOURCE TO sales;
+
+CREATE TABLE sales.customers (
+  id NUMBER PRIMARY KEY,
+  name VARCHAR2(100)
+);
+```
+
+<img src="../images/6.png" height="auto" width="auto" />
+
+### What is SQL?
+
+SQL (Structured Query Language) is the standard language used to communicate with relational databases. It allows to create, read, update, and delete (CRUD) data, as well as manage database structure and control access.
+
+SQL = Structured Query Language
+
+What can SQL do?
+
+- Data Query - Retrieve data - SELECT \* FROM employees;
+- Data Insertion - Add new records - INSERT INTO employees (...) VALUES (...);
+- Data Update - Modify existing data - UPDATE employees SET salary = 5000 WHERE id = 1;
+- Data Deletion - Remove records - DELETE FROM employees WHERE id = 1;
+- Table Creation - Define tables and structure - CREATE TABLE employees (...);
+- Access Control - Manage users and permissions - GRANT SELECT ON employees TO user1;
+
+Common Categories of SQL Commands:
+
+- DDL (Data Definition Language): Defines database structure (CREATE, ALTER, DROP)
+- DML (Data Manipulation Language): Handles data inside tables (SELECT, INSERT, UPDATE, DELETE)
+- DCL (Data Control Language): Controls user access (GRANT, REVOKE)
+- TCL (Transaction Control Language): Manage Transactions (COMMIT, ROLLBACK, SAVEPOINT)
+
+```
+-- Create a table
+CREATE TABLE employees (
+  id NUMBER PRIMARY KEY,
+  name VARCHAR2(100),
+  salary NUMBER
+);
+
+-- Insert data
+INSERT INTO employees (id, name, salary) VALUES (1, 'Alice', 5000);
+
+-- Read data
+SELECT * FROM employees;
+
+-- Update data
+UPDATE employees SET salary = 6000 WHERE id = 1;
+
+-- Delete data
+DELETE FROM employees WHERE id = 1;
+```
+
+Where is SQL used?
+
+- Relational Databases: Oracle, MySQL, PostgreSQL, SQL Server
+- Data Analysis: In BI tool (Power BI, tableau)
+- Back-end Application: Web and mobile apps using SQL to store/retrieve data
+- Enterprise Systems: Banking, HR, Inventory, E-Commerce
