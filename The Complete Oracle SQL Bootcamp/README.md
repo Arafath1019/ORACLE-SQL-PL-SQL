@@ -576,3 +576,85 @@ image_data BLOB;
 
 - ROWID: Unique ID of a row in a table (physical address)
 - UROWID: For both physical and logical row identifiers
+
+### What is a NULL value?
+
+In SQL (and in Oracle), a NULL value represents missing, unknown, or inapplicable data. It does not mean zero, empty string or false - it simply means the value is not known or not provided.
+
+Key points about Null:
+
+- Unknown: NULL indicates the absence of a value
+- Not the same as 0 or '': NULL != 0 and NULL != ''
+- Data Type: NULL can exist in any column type (text, number, date, etc)
+- Affects logic: NULL makes logical comparisons tricky - NULL = NULL is not true.
+
+Example:
+Table: employees
+| emp*id | name | salary |
+| ------- | ----- | ------ |
+| 1 | Alice | 5000 |
+| 2 | Bob | \_NULL* |
+
+- Bob's salary is unknown - that's why it's stored as NULL
+
+NULL in conditions:
+
+- salary = NULL: Always false
+- salary IS NULL: True if NULL
+- salary IS NOT NULL: True if NOT NULL
+
+Correct Usage:
+
+```
+SELECR * FROM employees WHERE salary IS NULL;
+```
+
+NULL in Functions & Expressions:
+
+- Most functions ignore NULLs unless handled specifically
+- Example with SUM():
+
+```
+SELECT SUM(salary) FROM employees; -- Will ignore rows where salary is NULL
+```
+
+NULL and Equality
+
+```
+SELECT * FROM table WHERE column1 = column2; -- If either column is NULL, this condition is FALSE
+```
+
+Use NVL() (Oracle-specific) or COALESCE() to handle NULLs:
+
+```
+SELECT NVL(salary, 0) FROM employees; -- Replace NULL salary with 0
+```
+
+- NULL = unknown or missing data
+- Use IS NULL / IS NOT NULL to check
+- Avoid using = or <> with NULL
+- NULLs can affect logic, joins, and aggregations
+
+### DESCRIBE Command
+
+The DESCRIBE (or DESC) command is used to display the structure of a table or view - including the column names, data types and whether a column allows NULL values.
+
+```
+DESCRIBE table_name;
+-- OR
+DESC table_name;
+```
+
+Output Columns:
+| Name | Null? | Type |
+| ---------- | -------- | ------------ |
+| EMP_ID | NOT NULL | NUMBER(6) |
+| NAME | | VARCHAR2(50) |
+| SALARY | | NUMBER(8,2) |
+| HIRE_DATE | | DATE |
+
+- DESCRIBE is SQL\*PLUS and Oracle-specific. It works in:
+  - Oracle SQL\*Plus
+  - Oracle SQL Server
+  - Some other tools like TOAD
+- Not Standard SQL: Other databases like MySQL, PostgreSQL use different command (e.g. SHOW COLUMN, \d table, INFORMATION_SCHEMA queries)
