@@ -658,3 +658,293 @@ Output Columns:
   - Oracle SQL Server
   - Some other tools like TOAD
 - Not Standard SQL: Other databases like MySQL, PostgreSQL use different command (e.g. SHOW COLUMN, \d table, INFORMATION_SCHEMA queries)
+
+### SQL statement basics
+
+SQL (Structured Query Language) is the standard language used to interact with relational databases. It consists of different types of statements used to define, manipulate, and control data and database structures.
+
+Types of SQL statements:
+
+- DDL (Data Definition Language) - Define or modify database structure (CREATE, ALTER, DROP, TRUNCATE)
+- DML (Data Manipulation Language) - Work with the actual data (SELECT, INSERT, UPDATE, DELETE)
+- DCL (Data Control Language) - Manage Permissions (GRANT, REVOKE)
+- TCL (Transaction Control Language) - Manage Transactions (COMMIT, ROLLBACK, SAVEPOINT)
+
+1. DML - Data Manipulation
+   `SELECT` - Read data
+
+```
+SELECT name, salary FROM employees WHERE department = 'HR';
+```
+
+`INSERT` - Add new data
+
+```
+INSERT INTO employees (id, name, salary)
+VALUES (1, 'Alice', 5000);
+```
+
+`UPDATE` - Modify existing data
+
+```
+UPDATE employees
+SET salary = 6000
+WHERE id = 1;
+```
+
+`DELETE` - Remove data
+
+```
+DELETE FROM employees WHERE id = 1;
+```
+
+2. DDL - Data Definition
+   `CREATE` - Create new objects
+
+```
+CREATE TABLE employees (
+  id NUMBER PRIMARY KEY,
+  name VARCHAR2(100),
+  salary NUMBER
+);
+```
+
+`ALTER` - Modify structure
+
+```
+ALTER TABLE employees ADD hire_date DATE;
+```
+
+`DROP` - Delete the object
+
+```
+DROP TABLE employees;
+```
+
+`TRUNCATE` - Delete all rows (faster, no rollback)
+
+```
+TRUNCATE TABLE employees;
+```
+
+3. DCL - Data Control
+   `GRANT` - Give permissions
+
+```
+GRANT SELECT ON employees TO user1;
+```
+
+`REVOKE` - Take back permission
+
+```
+REVOKE SELECT ON employees FROM user1;
+```
+
+4. TCL - Transaction Control
+   `COMMIT` - Save Changes
+
+```
+COMMIT;
+```
+
+`ROLLBACK` - Undo Changes
+
+```
+ROLLBACK;
+```
+
+`SAVEPOINT` - Set a point to rollback to
+
+```
+SAVEPOINT sp1;
+```
+
+General Syntax:
+
+- SQL keywords are not case sensitive
+- Statements usually end with a semicolon
+- Use single quotes for string value
+- Use double quotes for object names
+
+### Oracle Error Messages
+
+In Oracle, error messages are returned when something goes wrong during SQL execution. Each error comes with a code (ORA-00904) and a description.
+
+Common Oracle Error Messages:
+
+- ORA-00001: Unique constraint violated - Duplicate value in a unique column
+- ORA-00904: Invalid identifies - Misspelled column or keyword
+- ORA-00942: Table or view does not exist - Table not found or not accessible
+- ORA-00933: SQL command not properly ended - Syntax error
+- ORA-00936: Missing expression - Incomplete SQL statement
+- ORA-01722: Invalid number - Trying to convert a string to a number
+- ORA-01400: Cannot insert NULL into a NOT NULL column - Missing required column value
+- ORA-06550: PL/SQL compilation error - Syntax or logic issue in PL/SQL
+- ORA-02291: Integrity constraint violated - parent key not found - Foreign key reference failure
+- ORA-02292: Integrity constrain violated - child record found - Deleting a parent with existing child rows.
+
+How to handle errors:
+
+- Check spelling (column/table names, keywords)
+- Verify data types before inserting or updating
+- Check constrains (PK, FK, NOT NULL) etc
+- Use DESCRIBE table_name to inspect table structure.
+- For PL/SQL: Use SHOW ERRORS after compilation
+
+```
+BEGIN
+  -- your code here
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
+```
+
+- Oracle error message follow the format: `ORA-xxxxx: description`
+
+### Using SELECT statements
+
+The SELECT statement is used to retrieve data from one or more tables, views, or other database objects.
+It is part of the DML (Data Manipulation Language) category in SQL.
+
+- Selecting All Columns
+
+```
+SELECT * FROM employees;
+```
+
+- Selecting Specific Columns
+
+```
+SELECT first_name, last_name, salary
+FROM employees;
+```
+
+- Using Aliases
+
+```
+SELECT first_name AS fname, last_name AS lname
+FROM employees;
+-- AS is optional
+SELECT first_name fname, last_name lname
+FROM employees;
+```
+
+- Filtering Rows with WHERE
+
+```
+SELECT first_name, salary
+FROM employees
+WHERE salary > 5000;
+-- Operators: =, !=, <>, <, >, <=, >=, BETWEEN, LIKE, IN, IS NULL
+SELECT * FROM employees
+WHERE department_id IN (10,20,30);
+```
+
+- Sorting Results with ORDER BY
+
+```
+SELECT first_name, salary
+FROM employees
+ORDER BY salary DESC; -- Default is ASC
+```
+
+- Removing Duplicates with DISTINCT
+
+```
+SELECT DISTINCT department_id
+FROM employees;
+```
+
+- Using Functions
+
+```
+SELECT UPPER(first_name) AS name_upper, ROUND(salary, 0) AS rounded_salary
+FROM employees;
+```
+
+- Combining Conditions
+
+```
+SELECT first_name, salary, department_id
+FROM employees
+WHERE department_id = 70 AND salary > 4000;
+```
+
+9. Aggregating Data
+
+```
+SELECT department_id, AVG(salary) AS avg_salary
+FROM employees
+GROUP BY department_id
+HAVING AVG(salary) > 5000;
+```
+
+### Using Column Alias
+
+A column alias is a temporary name giver to a column or expression in the result set. It does not change the actual column name in the table - it's just for display in query output.
+
+- Basic Syntax
+
+```
+SELECT column_name AS alias_name -- AS is optional in oracle. Alias name with spaces or special characters must be enclosed in double quotes (" ")
+FROM table_name;
+```
+
+- Without AS
+
+```
+SELECT first_name fname, last_name lname
+FROM employees;
+```
+
+- With AS
+
+```
+SELECT first_name AS fname, last_name AS lname
+FROM employees;
+```
+
+- Alias with Spaces
+
+```
+SELECT first_name AS "First Name", last_name AS "Last Name"
+FROM employees;
+```
+
+- Alias for Expressions
+
+```
+SELECT first_name || ' ' || last_name AS full_name -- || is the concatenation operator in Oracle
+FROM employees;
+```
+
+- Alias for Aggregates
+
+```
+SELECT department_id, AVG(salary) AS avg_salary
+FROM employees
+GROUP BY department_id;
+```
+
+- Aliases are only visible in the result set, not in the WHERE clause (because WHERE is processed before the alias is assigned)
+- If you want to use the alias in filtering, use HAVING or a subquery
+
+### Quote q Operator
+
+The `q` quote operator lets you define a string literal using your own chosen delimiter instead of the default single quote '...'.
+It's useful when your string itself contains a single quotes - without it, you'd need to duoble them up (''), which can get messy.
+
+- Syntax
+
+```
+q'[your string here]'
+```
+
+or more generally:
+
+```
+q'<delimiter>string<delimiter>'
+```
+
+The delimiter can be [], {}, (), <> or any single character
