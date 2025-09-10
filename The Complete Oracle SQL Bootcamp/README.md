@@ -948,3 +948,134 @@ q'<delimiter>string<delimiter>'
 ```
 
 The delimiter can be [], {}, (), <> or any single character
+
+### DISTINCT & UNIQUE Operator
+
+1. `DISTINCT`
+
+- Used in a `SELECT` statement to remove duplicate rows from the result set
+- It applies to the entire row (all columns listed in the SELECT) unless used with specific columns
+
+```
+SELECT DISTINCT department_id
+FROM employees;
+
+SELECT DISTINCT first_name, last_name
+FROM employees;
+```
+
+2. `UNIQUE`
+   In Oracle can use UNIQUE in a SELECT query instead of DISTINCT. They work the same in that context, but DISTINCT is standard SQL, while UNIQUE is Oracle specific and less commonly used.
+
+```
+SELECT UNIQUE department_id
+FROM employees;
+```
+
+### Concatenation Operator
+
+In SQL, the concatenation operator is used to join two or more strings into a single string.
+
+```
+SELECT first_name || ' ' || last_name AS full_name
+FROM employees;
+
+SELECT 'Employee: ' || first_name || ' ' || last_name || ', Dept: ' || department_id
+FROM employees;
+```
+
+### Arithmetic Expressions & NULL value
+
+1. Arithmetic Expressions in SQL: + (Addition), - (Subtraction), \* (Multiplication), / (Division), \*\* (Power)
+
+```
+SELECT salary, salary + 500 AS new_salary
+FROM employees;
+```
+
+2. NULL in arithmetic: In SQL, NULL means unknown, not zero. Any arithmetic operation with NULL -> results in NULL
+
+```
+SELECT 10 + NULL;   -- Result: NULL
+SELECT 10 - NULL;   -- Result: NULL
+SELECT 10 * NULL;   -- Result: NULL
+SELECT 10 / NULL;   -- Result: NULL
+```
+
+Handling NULL in arithmetic:
+To avoid losing data due to NULL, use functions like NVL, ISNULL, COALESCE.
+
+```
+SELECT salary + NVL(commission, 0) AS total_income
+FROM employees;
+
+SELECT salary + ISNULL(commission, 0) AS total_income
+FROM employees;
+
+SELECT salary + COALESCE(commission, 0) AS total_income
+FROM employees;
+```
+
+### Using WHERE clause
+
+The WHERE clause is used to filter rows before they are included in the result set.
+It specifies a condition that each row must satisfy.
+Only rows that evaluate the condition to TRUE are returned.
+
+```
+SELECT column1, column2
+FROM table_name
+WHERE condition;
+
+SELECT first_name, salary
+FROM employees
+WHERE salary > 5000;
+```
+
+Operators in WHERE clause: =, !=, <>, <, <=, >, >=
+
+```
+SELECT *
+FROM employees
+WHERE department_id = 10;
+```
+
+Logical Operators: AND, OR, NOT
+
+```
+SELECT * FROM employees WHERE department_id = 10 and salary > 5000;
+```
+
+Range Checking: BETWEEN ... AND ...
+
+```
+SELECT *
+FROM employees
+WHERE salary BETWEEN 3000 AND 7000;
+```
+
+Set membership: IN, NOT IN
+
+```
+SELECT *
+FROM employees
+WHERE department_id IN (10, 20, 30);
+```
+
+Pattern matching: LIKE with % (wildcard for many chars) and \_ (single char)
+
+```
+SELECT *
+FROM employees
+WHERE first_name LIKE 'A%';   -- names starting with A
+```
+
+NULL Checking: IS NULL. IS NOT NULL
+
+```
+SELECT *
+FROM employees
+WHERE commission IS NULL;
+```
+
+Order of execution: The WHERE clause is applied before grouping (GROUP BY) and before aggregation (SUM, AVG, etc.), but after the FROM clause.
